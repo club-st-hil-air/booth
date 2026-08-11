@@ -1,0 +1,233 @@
+import { Article, ArticleItem, ArticleRaw, Lot } from '../types';
+
+export const TYPE_MAP: Record<string, { label: string; translationKey: string; icon: string; color: string; bg: string }> = {
+  '0': { label: 'Voile', translationKey: 'typeGlider', icon: '🪂', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)' },
+  '1': { label: 'Sellette', translationKey: 'typeHarness', icon: '💺', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' },
+  '2': { label: 'Secours', translationKey: 'typeReserve', icon: '🆘', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)' },
+  '3': { label: 'Accessoire', translationKey: 'typeAccessory', icon: '🛠', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
+};
+
+export type HomologationLevel = 'a' | 'b' | 'c' | 'd' | 'ccc' | '';
+
+/**
+ * Classify a homologation string on the accessible → performance ladder for colour-coding.
+ * EN rating is authoritative; falls back to the standard LTF ↔ EN correspondence
+ * (LTF 1 ≈ A, LTF 1-2 ≈ B, LTF 2 ≈ C, LTF 2-3 / LTF 3 ≈ D). CCC = competition.
+ */
+export function getHomologationLevel(homologation: string): HomologationLevel {
+  const h = (homologation || '').toUpperCase();
+  if (!h) return '';
+  if (h.includes('CCC')) return 'ccc';
+  // EN rating (authoritative) — check D→A so a dual "EN C/D" reads as the higher class first.
+  if (/\bEN[\s-]*D\b/.test(h)) return 'd';
+  if (/\bEN[\s-]*C\b/.test(h)) return 'c';
+  if (/\bEN[\s-]*B\b/.test(h)) return 'b';
+  if (/\bEN[\s-]*A\b/.test(h)) return 'a';
+  // LTF fallback — order matters: match the ranges before the single digits.
+  if (h.includes('LTF 3') || h.includes('LTF-3')) return 'd';
+  if (h.includes('2-3')) return 'd';
+  if (h.includes('1-2')) return 'b';
+  if (h.includes('LTF 2') || h.includes('LTF-2')) return 'c';
+  if (h.includes('LTF 1') || h.includes('LTF-1')) return 'a';
+  return '';
+}
+
+/** Icon/text colour for a homologation level, matching the CSS badge classes. */
+export const HOMOLOGATION_COLORS: Record<HomologationLevel, string> = {
+  a: 'var(--state-new)',
+  b: 'var(--state-good)',
+  c: 'var(--state-worn)',
+  d: 'var(--danger)',
+  ccc: '#a855f7',
+  '': 'var(--text-muted)',
+};
+
+/**
+ * Group raw article items by `idLot` into rich `Lot` instances containing multiple `ArticleItem`s.
+ */
+export function groupRawIntoLots(rawArticles: ArticleRaw[]): Lot[] {
+  if (!Array.isArray(rawArticles) || rawArticles.length === 0) {
+    return [];
+  }
+
+  const lotMap = new Map<string, Lot>();
+
+  rawArticles.forEach((raw) => {
+    const key = raw.idLot;
+    const typeInfo = TYPE_MAP[raw.type] || {
+      label: `Type ${raw.type}`,
+      icon: '📦',
+      color: '#8b5cf6',
+      bg: 'rgba(139, 92, 246, 0.15)',
+    };
+
+    const item: ArticleItem = {
+      typeCode: raw.type || '3',
+      typeLabel: typeInfo.label,
+      typeIcon: typeInfo.icon,
+      marque: (raw.marque || '').trim(),
+      modele: (raw.modele || '').trim(),
+      homologation: (raw.homologation || '').replace(/&amp;/g, '&').trim(),
+      PTVMin: parseFloat(raw.PTVMin || '0') || 0,
+      PTVMax: parseFloat(raw.PTVMax || '0') || 0,
+      taille: (raw.taille || '').trim(),
+      annee: (raw.annee || '').trim(),
+      couleurVoile: (raw.couleurVoile || '').trim(),
+      commentaire: (raw.commentaire || '').trim(),
+    };
+
+    if (!lotMap.has(key)) {
+      const prix = parseFloat(raw.prixVente || '0') || 0;
+      let vendeurInfo = '';
+      if (raw.prenomVendeur || raw.nomVendeur) {
+        vendeurInfo = `${raw.prenomVendeur || ''} ${raw.nomVendeur || ''}`.trim();
+      }
+
+      lotMap.set(key, {
+        idLot: raw.idLot || '',
+        numeroCoupon: raw.numeroCoupon || raw.idLot || '',
+        prixVente: prix,
+        prixVenteStr: `${prix} €`,
+        statut: raw.statut || 'En vente',
+        vendeurInfo: vendeurInfo || undefined,
+        vendeurTel: raw.telephoneVendeur || undefined,
+        articles: [item],
+        primaryArticle: item,
+        title: `${item.marque} ${item.modele}`.trim(),
+      });
+    } else {
+      const lot = lotMap.get(key)!;
+      lot.articles.push(item);
+
+      // If primary article is not a glider ('0') and the new item IS a glider, promote glider as primary!
+      if (lot.primaryArticle.typeCode !== '0' && item.typeCode === '0') {
+        lot.primaryArticle = item;
+      }
+
+      // Rebuild summary title
+      lot.title = lot.articles.map((a) => `${a.marque} ${a.modele}`.trim()).filter(Boolean).join(' + ');
+    }
+  });
+
+  return Array.from(lotMap.values());
+}
+
+/**
+ * Filter lots based on user query and filter criteria across all sub-articles in each lot.
+ */
+export function filterArticles(
+  lots: Lot[],
+  query: string,
+  status: string,
+  typeCode: string,
+  brand: string,
+  homologation: string,
+  profile: string,
+  minPrice: string,
+  maxPrice: string,
+  ptvTarget: string,
+  onlyFavorites: boolean,
+  favoriteIds: Set<string>
+): Lot[] {
+  const queryWords = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const minPriceNum = minPrice ? parseFloat(minPrice) : null;
+  const maxPriceNum = maxPrice ? parseFloat(maxPrice) : null;
+  const ptvTargetNum = ptvTarget ? parseFloat(ptvTarget) : null;
+
+  return lots.filter((lot) => {
+    // Favorites filter
+    if (onlyFavorites && !favoriteIds.has(lot.idLot)) {
+      return false;
+    }
+
+    // Status filter
+    if (status !== 'ALL') {
+      const sNorm = status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const lotStatutNorm = lot.statut.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (sNorm.includes('vente') && !lotStatutNorm.includes('vente')) {
+        return false;
+      } else if (!sNorm.includes('vente') && !lotStatutNorm.includes(sNorm)) {
+        return false;
+      }
+    }
+
+    // Category Type filter (matches if ANY article in the lot is of that type)
+    if (typeCode !== 'ALL' && !lot.articles.some((a) => a.typeCode === typeCode)) {
+      return false;
+    }
+
+    // Brand filter (matches if ANY article in the lot is of that brand)
+    if (brand !== 'ALL' && !lot.articles.some((a) => a.marque.toUpperCase() === brand.toUpperCase())) {
+      return false;
+    }
+
+    // Homologation filter (matches if ANY article in the lot matches)
+    if (homologation !== 'ALL' && !lot.articles.some((a) => a.homologation === homologation)) {
+      return false;
+    }
+
+    // Practice Profile filter
+    if (profile !== 'ALL') {
+      const matchProfile = lot.articles.some((a) => {
+        const hUpper = a.homologation.toUpperCase();
+        const mUpper = `${a.marque} ${a.modele} ${a.commentaire}`.toUpperCase();
+
+        if (profile === 'school') {
+          return hUpper.includes('EN A') || hUpper.includes('LTF 1') || hUpper.includes('LTF-1');
+        } else if (profile === 'progression') {
+          return hUpper.includes('EN B') || hUpper.includes('LTF 1-2') || hUpper.includes('LTF 2');
+        } else if (profile === 'performance') {
+          return hUpper.includes('EN C') || hUpper.includes('EN D') || hUpper.includes('CCC') || hUpper.includes('LTF 2-3') || hUpper.includes('LTF 3');
+        } else if (profile === 'light') {
+          return mUpper.includes('LIGHT') || mUpper.includes('RANDO') || mUpper.includes('SINGLE') || mUpper.includes('SKIN') || mUpper.includes('PLUME') || mUpper.includes('ULTRALIGHT');
+        } else if (profile === 'tandem') {
+          return mUpper.includes('BI') || mUpper.includes('TANDEM') || mUpper.includes('DUO') || mUpper.includes('SAFARI') || mUpper.includes('TAKOO') || mUpper.includes('FUSE') || mUpper.includes('BIPLACE');
+        }
+        return false;
+      });
+
+      if (!matchProfile) return false;
+    }
+
+    // Min / Max Price
+    if (minPriceNum !== null && lot.prixVente < minPriceNum) {
+      return false;
+    }
+    if (maxPriceNum !== null && lot.prixVente > maxPriceNum) {
+      return false;
+    }
+
+    // PTV Target Matching (matches ONLY lots containing a glider '0' whose PTV range encompasses target PTV)
+    if (ptvTargetNum !== null) {
+      const gliders = lot.articles.filter((a) => a.typeCode === '0' && (a.PTVMin > 0 || a.PTVMax > 0));
+      if (gliders.length === 0) {
+        return false;
+      }
+      const hasGliderMatch = gliders.some((g) => {
+        const minBound = g.PTVMin > 0 ? g.PTVMin : 0;
+        const maxBound = g.PTVMax > 0 ? g.PTVMax : 999;
+        return ptvTargetNum >= minBound && ptvTargetNum <= maxBound;
+      });
+      if (!hasGliderMatch) return false;
+    }
+
+    // Full text multi-word search in all fields across all sub-articles
+    if (queryWords.length > 0) {
+      const haystack = [
+        lot.idLot,
+        lot.numeroCoupon,
+        lot.statut,
+        lot.title,
+        lot.vendeurInfo || '',
+        lot.vendeurTel || '',
+        ...lot.articles.map((a) => `${a.typeLabel} ${a.marque} ${a.modele} ${a.homologation} ${a.taille} ${a.annee} ${a.couleurVoile} ${a.commentaire}`),
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return queryWords.every((word) => haystack.includes(word));
+    }
+
+    return true;
+  });
+}

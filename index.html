@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪂</text></svg>">
+    <title>Stand d'Occasion Coupe Icare — Consultation du Matériel</title>
+    <meta name="description" content="Application de consultation en direct des lots et matériel d'occasion de parapente à la Coupe Icare." />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      /* CSS Theme System Tokens — strictly derived from theme.ts */
+      :root, html[data-theme="dark"] {
+        --bg-app: #121212;
+        --bg-header: #1C1C1E;
+        --bg-card: #1C1C1E;
+        --bg-card-hover: #242426;
+        --bg-section: #242426;
+        --bg-subcard: #242426;
+        --bg-input: #242426;
+        --border-main: #2E2E30;
+        --border-light: #2E2E30;
+        --text-primary: #F2F2F2;
+        --text-secondary: #A8A8A8;
+        --text-muted: #767678;
+        --accent: #E56A3D;
+        --accent-light: #3A2620;
+        --state-new: #5FA98B;
+        --state-new-bg: #1E2C27;
+        --state-good: #6FA8DC;
+        --state-good-bg: #1E2A36;
+        --state-worn: #D1A85C;
+        --state-worn-bg: #2E2618;
+        --danger: #E06B4D;
+        --success: #5FA98B;
+        --shadow-card: 0 1px 3px rgba(0,0,0,0);
+        --scrollbar-track: #121212;
+        --scrollbar-thumb: #2E2E30;
+      }
+
+      html[data-theme="light"] {
+        --bg-app: #FAFAFA;
+        --bg-header: #FFFFFF;
+        --bg-card: #FFFFFF;
+        --bg-card-hover: #FAFAFA;
+        --bg-section: #FFFFFF;
+        --bg-subcard: #FAFAFA;
+        --bg-input: #FAFAFA;
+        --border-main: #E5E5E5;
+        --border-light: #E5E5E5;
+        --text-primary: #1A1A1A;
+        --text-secondary: #6B6B6B;
+        --text-muted: #9C9C9C;
+        --accent: #D9542A;
+        --accent-light: #F7E3DA;
+        --state-new: #2D5A4A;
+        --state-new-bg: #E4EEEA;
+        --state-good: #3F7DBF;
+        --state-good-bg: #E3ECF6;
+        --state-worn: #B0862E;
+        --state-worn-bg: #F3EAD8;
+        --danger: #C4462B;
+        --success: #2D5A4A;
+        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+        --scrollbar-track: #FAFAFA;
+        --scrollbar-thumb: #E5E5E5;
+      }
+
+      /* Modern Reset for React Native Web */
+      html, body, #root {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--bg-app);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: var(--text-primary);
+        -webkit-tap-highlight-color: transparent;
+        overflow-x: hidden;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+      
+      /* Responsive Grid Column Breakpoints */
+      @media (min-width: 640px) {
+        div[style*="flex-basis: 100%"] {
+          flex-basis: 50% !important;
+          max-width: 50% !important;
+        }
+      }
+      @media (min-width: 1024px) {
+        div[style*="flex-basis: 100%"] {
+          flex-basis: 33.333% !important;
+          max-width: 33.333% !important;
+        }
+      }
+      @media (min-width: 1400px) {
+        div[style*="flex-basis: 100%"] {
+          flex-basis: 25% !important;
+          max-width: 25% !important;
+        }
+      }
+
+      /* Skip layout/paint for off-screen cards */
+      div[style*="flex-basis: 100%"] {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 280px;
+      }
+
+      /* Scrollbar customization */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111827;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #374151;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #4b5563;
+      }
+      
+      /* Print styles */
+      @media print {
+        body {
+          background-color: white !important;
+          color: black !important;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
