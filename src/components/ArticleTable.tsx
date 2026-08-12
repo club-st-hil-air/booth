@@ -31,11 +31,11 @@ const ArticleTableComponent: React.FC<ArticleTableProps> = ({
   };
 
   const columns: { field: SortField | null; label: string; width: string }[] = [
-    { field: 'idLot', label: 'Lot', width: '70px' },
-    { field: null, label: 'Type', width: '100px' },
+    { field: 'idLot', label: t('lotNum'), width: '70px' },
+    { field: null, label: t('filterGroupType'), width: '100px' },
     { field: 'marque', label: t('sortBrand'), width: '120px' },
     { field: 'prixVente', label: t('sortPrice'), width: '100px' },
-    { field: 'PTVMax', label: 'PTV', width: '100px' },
+    { field: 'PTVMax', label: t('ptvLabel'), width: '100px' },
     { field: 'annee', label: t('sortYear'), width: '80px' },
     { field: null, label: '♥', width: '50px' },
   ];

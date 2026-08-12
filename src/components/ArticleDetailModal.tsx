@@ -97,7 +97,7 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ background: 'var(--accent)', color: '#fff', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-              LOT #{article.idLot}
+              {t('lotNum')} #{article.idLot}
             </span>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -113,11 +113,11 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
           {/* Hero */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span className="card-type-badge">{items.length > 1 ? '📦' : typeConfig.icon} {items.length > 1 ? `${items.length} articles` : (typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label)}</span>
+              <span className="card-type-badge">{items.length > 1 ? '📦' : typeConfig.icon} {items.length > 1 ? t('articlesCount', { count: items.length }) : (typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label)}</span>
             </div>
-            <span className="card-brand">{primary.marque || 'SANS MARQUE'}</span>
+            <span className="card-brand">{primary.marque || t('noBrand')}</span>
             <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>
-              {article.title || primary.modele || 'Modèle non renseigné'}
+              {article.title || primary.modele || t('noModel')}
             </span>
             <span className="card-price" style={{ alignSelf: 'flex-start' }}>{article.prixVenteStr}</span>
           </div>
@@ -127,7 +127,7 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
             <div className={`ptv-gauge ${isPtvMatch ? 'ptv-gauge--match' : ''}`}>
               <div className="ptv-header">
                 <Gauge size={18} color={isPtvMatch ? 'var(--state-good)' : 'var(--text-muted)'} />
-                <span className="ptv-label">PTV: {glider.PTVMin > 0 ? glider.PTVMin : '?'} - {glider.PTVMax > 0 ? glider.PTVMax : '?'} kg</span>
+                <span className="ptv-label">{t('ptvRange', { min: glider.PTVMin > 0 ? glider.PTVMin : '?', max: glider.PTVMax > 0 ? glider.PTVMax : '?' })}</span>
               </div>
               {ptvTargetNum !== null && glider.PTVMin > 0 && glider.PTVMax > glider.PTVMin && (() => {
                 const pct = Math.max(0, Math.min(100, ((ptvTargetNum - glider.PTVMin) / (glider.PTVMax - glider.PTVMin)) * 100));
@@ -155,11 +155,11 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                 <div key={idx} style={{ background: 'var(--bg-section)', borderRadius: 10, padding: 12, border: '1px solid var(--border-main)', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 16 }}>{item.typeIcon}</span>
-                    <strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>{item.typeLabel}: {item.marque} {item.modele}</strong>
+                    <strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>{TYPE_MAP[item.typeCode]?.translationKey ? t(TYPE_MAP[item.typeCode].translationKey as any) : item.typeLabel}: {item.marque} {item.modele}</strong>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {item.homologation && <div className="detail-row"><Shield size={14} className="detail-row-icon" /><span className="detail-row-label">{t('homologationLabel')}</span><span className="detail-row-value">{item.homologation}</span></div>}
-                    {(item.PTVMin > 0 || item.PTVMax > 0) && <div className="detail-row"><Gauge size={14} className="detail-row-icon" /><span className="detail-row-label">PTV</span><span className="detail-row-value">{item.PTVMin || '?'} - {item.PTVMax || '?'} kg</span></div>}
+                    {(item.PTVMin > 0 || item.PTVMax > 0) && <div className="detail-row"><Gauge size={14} className="detail-row-icon" /><span className="detail-row-label">{t('ptvLabel')}</span><span className="detail-row-value">{item.PTVMin || '?'} - {item.PTVMax || '?'} kg</span></div>}
                     {item.taille && <div className="detail-row"><Maximize2 size={14} className="detail-row-icon" /><span className="detail-row-label">{t('sizeLabel')}</span><span className="detail-row-value">{item.taille}</span></div>}
                     {item.annee && <div className="detail-row"><Calendar size={14} className="detail-row-icon" /><span className="detail-row-label">{t('yearLabel')}</span><span className="detail-row-value">{item.annee}</span></div>}
                     {item.couleurVoile && <div className="detail-row"><Tag size={14} className="detail-row-icon" /><span className="detail-row-label">{t('colorLabel')}</span><span className="detail-row-value">{item.couleurVoile}</span></div>}

@@ -91,7 +91,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Row 2: Type category pills (labeled) */}
       <div className="filterbar-row filterbar-row--collapsible">
-        <span className="filter-group-label">Type</span>
+        <span className="filter-group-label">{t('filterGroupType')}</span>
         {categories.map((cat) => (
           <button key={cat.code} className={`pill ${filters.selectedType === cat.code ? 'pill--active' : ''}`} onClick={() => onFilterChange({ ...filters, selectedType: cat.code })}>
             <span>{cat.icon}</span><span>{cat.label}</span>
@@ -121,7 +121,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="filterbar-advanced">
           {/* Profiles row */}
           <div className="filterbar-row">
-            <span className="filter-group-label">Niveau</span>
+            <span className="filter-group-label">{t('filterGroupLevel')}</span>
             {profiles.map((pf) => (
               <button key={pf.code} className={`pill ${filters.selectedProfile === pf.code ? 'pill--active' : ''}`} onClick={() => onFilterChange({ ...filters, selectedProfile: pf.code })}>
                 {pf.label}
@@ -133,7 +133,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <div className="filterbar-advanced-grid">
             <div>
               <label className="form-label">{t('pilotPtvLabel')}</label>
-              <input className="form-input" placeholder="Ex: 85" type="number" value={filters.ptvTarget} onChange={(e) => onFilterChange({ ...filters, ptvTarget: e.target.value })} />
+              <input className="form-input" placeholder={t('ptvPlaceholder')} type="number" value={filters.ptvTarget} onChange={(e) => onFilterChange({ ...filters, ptvTarget: e.target.value })} />
             </div>
             <div>
               <label className="form-label">{t('brandLabel')}</label>
@@ -152,9 +152,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <div>
               <label className="form-label">{t('priceLabel')}</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <input className="form-input" placeholder="Min €" type="number" value={filters.minPrice} onChange={(e) => onFilterChange({ ...filters, minPrice: e.target.value })} style={{ flex: 1 }} />
+                <input className="form-input" placeholder={t('priceMinPlaceholder')} type="number" value={filters.minPrice} onChange={(e) => onFilterChange({ ...filters, minPrice: e.target.value })} style={{ flex: 1 }} />
                 <span style={{ color: 'var(--text-muted)' }}>—</span>
-                <input className="form-input" placeholder="Max €" type="number" value={filters.maxPrice} onChange={(e) => onFilterChange({ ...filters, maxPrice: e.target.value })} style={{ flex: 1 }} />
+                <input className="form-input" placeholder={t('priceMaxPlaceholder')} type="number" value={filters.maxPrice} onChange={(e) => onFilterChange({ ...filters, maxPrice: e.target.value })} style={{ flex: 1 }} />
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end' }}>

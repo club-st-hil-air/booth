@@ -68,10 +68,10 @@ export function App() {
     setComparedIds((prev) => {
       const next = new Set(prev);
       if (next.has(idLot)) next.delete(idLot);
-      else { if (next.size >= 4) { alert('Max 4 lots pour la comparaison.'); return prev; } next.add(idLot); }
+      else { if (next.size >= 4) { alert(t('compareMax')); return prev; } next.add(idLot); }
       return next;
     });
-  }, []);
+  }, [t]);
 
   const loadArticles = useCallback(async () => {
     setIsLoading(true); setErrorMsg(null); setIsTestData(false);
@@ -103,16 +103,16 @@ export function App() {
           setLastUpdated(new Date());
         } catch {
           setArticles([]);
-          setErrorMsg(primaryErr.name === 'AbortError' ? 'Timeout réseau (3.5s).' : primaryErr.message || 'Erreur réseau.');
+          setErrorMsg(primaryErr.name === 'AbortError' ? t('errorTimeout') : primaryErr.message || t('errorNetwork'));
           setLastUpdated(new Date());
         }
       } else {
         setArticles([]);
-        setErrorMsg(primaryErr.name === 'AbortError' ? 'Timeout réseau (3.5s).' : primaryErr.message || 'Erreur réseau.');
+        setErrorMsg(primaryErr.name === 'AbortError' ? t('errorTimeout') : primaryErr.message || t('errorNetwork'));
         setLastUpdated(new Date());
       }
     } finally { setIsLoading(false); }
-  }, [apiUrl]);
+  }, [apiUrl, t]);
 
   useEffect(() => { loadArticles(); }, [loadArticles]);
   useEffect(() => {
@@ -205,7 +205,7 @@ export function App() {
         <div className="error-banner">
           <AlertTriangle size={16} color="var(--danger)" />
           <span className="error-banner-text">{errorMsg}</span>
-          <button className="error-banner-btn" onClick={loadArticles}>Réessayer</button>
+          <button className="error-banner-btn" onClick={loadArticles}>{t('retry')}</button>
         </div>
       )}
 

@@ -49,10 +49,10 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
       {/* Top: Lot badge + type on left, Price + actions on right */}
       <div className="card-top">
         <div className="card-top-left">
-          <div className="card-lot">LOT #{article.idLot}</div>
+          <div className="card-lot">{t('lotNum')} #{article.idLot}</div>
           <span className="card-type-badge">
             <span className="card-type-icon">{items.length > 1 ? '📦' : typeConfig.icon}</span>
-            {items.length > 1 ? `${items.length} articles` : (typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label)}
+            {items.length > 1 ? t('articlesCount', { count: items.length }) : (typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label)}
           </span>
         </div>
         <div className="card-top-right">
@@ -71,8 +71,8 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
 
       {/* Brand & Model */}
       <div className="card-title-section">
-        <span className="card-brand">{primary.marque || 'SANS MARQUE'}</span>
-        <span className="card-model">{article.title || 'Modèle non spécifié'}</span>
+        <span className="card-brand">{primary.marque || t('noBrand')}</span>
+        <span className="card-model">{article.title || t('noModel')}</span>
       </div>
 
       {/* Multi-article breakdown */}
@@ -81,7 +81,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
           {items.map((item, idx) => (
             <div key={idx} className="card-multi-chip">
               <span className="card-multi-icon">{item.typeIcon}</span>
-              <span>{item.typeLabel} {item.marque} {item.modele}</span>
+              <span>{TYPE_MAP[item.typeCode]?.translationKey ? t(TYPE_MAP[item.typeCode].translationKey as any) : item.typeLabel} {item.marque} {item.modele}</span>
             </div>
           ))}
         </div>
@@ -93,7 +93,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 4 }}>
             <span className={`card-spec ${isPtvMatch ? 'card-spec--ptv-match' : ''}`}>
               <Gauge size={13} color={isPtvMatch ? '#38bdf8' : 'var(--text-muted)'} />
-              PTV: {gliderItem.PTVMin > 0 ? gliderItem.PTVMin : '?'} - {gliderItem.PTVMax > 0 ? gliderItem.PTVMax : '?'} kg
+              {t('ptvRange', { min: gliderItem.PTVMin > 0 ? gliderItem.PTVMin : '?', max: gliderItem.PTVMax > 0 ? gliderItem.PTVMax : '?' })}
             </span>
             {ptvGauge && (
               <div className="card-ptv-gauge">

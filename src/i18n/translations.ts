@@ -117,6 +117,20 @@ export const TRANSLATIONS = {
     emptyTitle: "Aucun lot ne correspond à vos critères",
     emptySub: "Essayez de modifier votre recherche ou de réinitialiser vos filtres.",
     offlineModeBanner: "Données de démonstration — le fichier de production n'est pas encore disponible.",
+    // Filter group labels, placeholders & fallbacks
+    filterGroupType: "Type",
+    filterGroupLevel: "Niveau",
+    ptvPlaceholder: "Ex : 85",
+    priceMinPlaceholder: "Min €",
+    priceMaxPlaceholder: "Max €",
+    retry: "Réessayer",
+    errorTimeout: "Délai réseau dépassé (3,5 s).",
+    errorNetwork: "Erreur réseau.",
+    compareMax: "4 lots maximum pour la comparaison.",
+    noBrand: "SANS MARQUE",
+    noModel: "Modèle non spécifié",
+    articlesCount: "{count} articles",
+    ptvLabel: "PTV",
   },
 
   en: {
@@ -228,6 +242,20 @@ export const TRANSLATIONS = {
     emptyTitle: "No items match your criteria",
     emptySub: "Try modifying your search or resetting your filters.",
     offlineModeBanner: "Demo data — production file is not yet available.",
+    // Filter group labels, placeholders & fallbacks
+    filterGroupType: "Type",
+    filterGroupLevel: "Level",
+    ptvPlaceholder: "e.g. 85",
+    priceMinPlaceholder: "Min €",
+    priceMaxPlaceholder: "Max €",
+    retry: "Retry",
+    errorTimeout: "Network timeout (3.5s).",
+    errorNetwork: "Network error.",
+    compareMax: "Up to 4 lots for comparison.",
+    noBrand: "NO BRAND",
+    noModel: "Model not specified",
+    articlesCount: "{count} items",
+    ptvLabel: "Weight",
   },
 
   es: {
@@ -339,6 +367,20 @@ export const TRANSLATIONS = {
     emptyTitle: "Ningún lote coincide con tus criterios",
     emptySub: "Intenta modificar tu búsqueda o restablecer los filtros.",
     offlineModeBanner: "Datos de demostración — el archivo de producción aún no está disponible.",
+    // Filter group labels, placeholders & fallbacks
+    filterGroupType: "Tipo",
+    filterGroupLevel: "Nivel",
+    ptvPlaceholder: "Ej: 85",
+    priceMinPlaceholder: "Mín €",
+    priceMaxPlaceholder: "Máx €",
+    retry: "Reintentar",
+    errorTimeout: "Tiempo de red agotado (3,5 s).",
+    errorNetwork: "Error de red.",
+    compareMax: "Máximo 4 lotes para comparar.",
+    noBrand: "SIN MARCA",
+    noModel: "Modelo no especificado",
+    articlesCount: "{count} artículos",
+    ptvLabel: "PTV",
   },
 
   de: {
@@ -450,6 +492,20 @@ export const TRANSLATIONS = {
     emptyTitle: "Keine Artikel entsprechen Ihren Kriterien",
     emptySub: "Versuchen Sie Ihre Suche zu ändern oder die Filter zurückzusetzen.",
     offlineModeBanner: "Demodaten — Produktionsdatei ist noch nicht verfügbar.",
+    // Filter group labels, placeholders & fallbacks
+    filterGroupType: "Typ",
+    filterGroupLevel: "Stufe",
+    ptvPlaceholder: "z. B. 85",
+    priceMinPlaceholder: "Min €",
+    priceMaxPlaceholder: "Max €",
+    retry: "Erneut versuchen",
+    errorTimeout: "Netzwerk-Timeout (3,5 s).",
+    errorNetwork: "Netzwerkfehler.",
+    compareMax: "Maximal 4 Lots zum Vergleich.",
+    noBrand: "OHNE MARKE",
+    noModel: "Modell nicht angegeben",
+    articlesCount: "{count} Artikel",
+    ptvLabel: "Startgewicht",
   },
 };
 
