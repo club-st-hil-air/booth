@@ -248,20 +248,25 @@ input, select { font: inherit; }
   /* Tighter page gutter — more room for card content */
   .main-scroll { padding: 12px; }
 
-  /* --- Header: brand on row 1, actions wrap onto row 2 --- */
+  /* --- Header: brand on row 1, icon-only actions on row 2 --- */
   /* (no overflow container here — it would clip the language dropdown) */
-  .header { padding: 8px 12px; gap: 8px; row-gap: 8px; }
+  .header { padding: 6px 12px; gap: 6px; row-gap: 6px; }
   .header-brand-title { font-size: 15px; }
   .header-brand-sub { font-size: 10px; }
-  .header-subtitle { font-size: 11px; }
+  /* Subtitle ("X of Y lots") is redundant with the stats bar — hide it to
+     reclaim a whole line and keep the header shallow when the keyboard is up. */
+  .header-subtitle { display: none; }
   .header-right {
     width: 100%;
     margin-left: 0;
     gap: 6px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-end;
   }
-  .header-btn { padding: 7px 10px; }
+  /* Collapse action buttons to icon-only squares to shrink the action row and
+     keep it on a single line (labels are noise on a phone). */
+  .header-btn { padding: 8px; }
+  .header-btn span { display: none; }
 
   /* --- Filter bar: tighter gutter --- */
   .filterbar { padding: 8px 12px; }
