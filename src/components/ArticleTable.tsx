@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { Article, SortField, SortOrder } from '../types';
-import { TYPE_MAP } from '../utils/articleUtils';
+import { TYPE_MAP, getGroupValue, formatGroupLabel } from '../utils/articleUtils';
 import { useI18n } from '../i18n/I18nContext';
 
 interface ArticleTableProps {
@@ -13,10 +13,12 @@ interface ArticleTableProps {
   sortOrder: SortOrder;
   onSortChange: (field: SortField, order: SortOrder) => void;
   ptvTargetNum: number | null;
+  selectedType: string;
+  showGroups: boolean;
 }
 
 const ArticleTableComponent: React.FC<ArticleTableProps> = ({
-  articles, favoriteIds, onToggleFavorite, onSelectArticle, sortField, sortOrder, onSortChange,
+  articles, favoriteIds, onToggleFavorite, onSelectArticle, sortField, sortOrder, onSortChange, selectedType, showGroups,
 }) => {
   const { t } = useI18n();
 
@@ -55,26 +57,42 @@ const ArticleTableComponent: React.FC<ArticleTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {articles.map((article) => {
-            const primary = article.primaryArticle;
-            const typeConfig = TYPE_MAP[primary.typeCode] || { icon: '📦', label: 'Article' };
-            const isFav = favoriteIds.has(article.idLot);
-            return (
-              <tr key={article.idLot} onClick={() => onSelectArticle(article)}>
-                <td><strong style={{ color: 'var(--accent)' }}>#{article.idLot}</strong></td>
-                <td><span>{typeConfig.icon} {typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label}</span></td>
-                <td>{primary.marque} {primary.modele}</td>
-                <td><strong style={{ color: 'var(--success)' }}>{article.prixVenteStr}</strong></td>
-                <td>{primary.PTVMax > 0 ? `${primary.PTVMin}-${primary.PTVMax} kg` : '-'}</td>
-                <td>{primary.annee || '-'}</td>
-                <td>
-                  <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(article.idLot); }} style={{ padding: 4 }}>
-                    <Heart size={16} color={isFav ? 'var(--danger)' : 'var(--text-muted)'} fill={isFav ? 'var(--danger)' : 'none'} />
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
+          {(() => {
+            const rows: React.ReactNode[] = [];
+            let lastGroup: string | null = null;
+            articles.forEach((article) => {
+              if (showGroups) {
+                const g = getGroupValue(article, sortField, selectedType) ?? '';
+                if (g !== lastGroup) {
+                  lastGroup = g;
+                  rows.push(
+                    <tr key={`sep-${article.idLot}`} className="table-group-sep">
+                      <td colSpan={columns.length}>{formatGroupLabel(sortField, g, t)}</td>
+                    </tr>
+                  );
+                }
+              }
+              const primary = article.primaryArticle;
+              const typeConfig = TYPE_MAP[primary.typeCode] || { icon: '📦', label: 'Article' };
+              const isFav = favoriteIds.has(article.idLot);
+              rows.push(
+                <tr key={article.idLot} onClick={() => onSelectArticle(article)}>
+                  <td><strong style={{ color: 'var(--accent)' }}>#{article.idLot}</strong></td>
+                  <td><span>{typeConfig.icon} {typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label}</span></td>
+                  <td>{primary.marque} {primary.modele}</td>
+                  <td><strong style={{ color: 'var(--success)' }}>{article.prixVenteStr}</strong></td>
+                  <td>{primary.PTVMax > 0 ? `${primary.PTVMin}-${primary.PTVMax} kg` : '-'}</td>
+                  <td>{primary.annee || '-'}</td>
+                  <td>
+                    <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(article.idLot); }} style={{ padding: 4 }}>
+                      <Heart size={16} color={isFav ? 'var(--danger)' : 'var(--text-muted)'} fill={isFav ? 'var(--danger)' : 'none'} />
+                    </button>
+                  </td>
+                </tr>
+              );
+            });
+            return rows;
+          })()}
         </tbody>
       </table>
     </div>

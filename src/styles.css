@@ -76,6 +76,13 @@ input, select { font: inherit; }
 @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 1400px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
+/* --- Group separators (grid + table) --- */
+.grid-separator { grid-column: 1 / -1; display: flex; align-items: center; padding: 6px 4px 4px; margin-top: 4px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); border-bottom: 1px solid var(--border-main); }
+.grid-separator:first-child { margin-top: 0; }
+.table-group-sep { cursor: default; }
+.table-group-sep td { background: var(--bg-section); font-family: 'Outfit', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; color: var(--accent); padding: 6px 12px; border-bottom: 1px solid var(--border-main); }
+.table-group-sep:hover td { background: var(--bg-section); }
+
 /* --- Article Card --- */
 .card { background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: all 0.15s ease-in-out; box-shadow: var(--shadow-card); content-visibility: auto; contain-intrinsic-size: auto 280px; }
 .card:hover { background: var(--bg-card-hover); border-color: var(--accent); transform: translateY(-2px); }

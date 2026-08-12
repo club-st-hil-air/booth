@@ -53,7 +53,7 @@ export type Article = Lot;
 
 export type ViewMode = 'grid' | 'table';
 
-export type SortField = 'idLot' | 'prixVente' | 'marque' | 'modele' | 'PTVMax' | 'annee' | 'numeroCoupon';
+export type SortField = 'idLot' | 'prixVente' | 'marque' | 'modele' | 'PTVMax' | 'annee' | 'numeroCoupon' | 'taille' | 'homologation';
 export type SortOrder = 'asc' | 'desc';
 
 export interface FilterState {

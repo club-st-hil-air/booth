@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, X, SlidersHorizontal, LayoutGrid, List, RotateCcw } from 'lucide-react';
 import { FilterState, SortField, SortOrder, ViewMode } from '../types';
+import { getSortFieldsForType } from '../utils/articleUtils';
 import { useI18n } from '../i18n/I18nContext';
 
 interface FilterBarProps {
@@ -39,13 +40,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     { code: 'tandem', label: t('levelTandem') },
   ];
 
-  const sortOptions: { field: SortField; key: string }[] = [
-    { field: 'idLot', key: 'sortLot' },
-    { field: 'prixVente', key: 'sortPrice' },
-    { field: 'marque', key: 'sortBrand' },
-    { field: 'PTVMax', key: 'sortPtv' },
-    { field: 'annee', key: 'sortYear' },
-  ];
+  const sortLabels: Partial<Record<SortField, string>> = {
+    idLot: 'sortLot',
+    prixVente: 'sortPrice',
+    marque: 'sortBrand',
+    PTVMax: 'sortPtv',
+    homologation: 'sortHomologation',
+    taille: 'sortSize',
+    annee: 'sortYear',
+  };
+  const sortOptions: { field: SortField; key: string }[] = getSortFieldsForType(filters.selectedType)
+    .map((field) => ({ field, key: sortLabels[field] ?? 'sortLot' }));
 
   const activeAdvancedCount = [
     filters.selectedProfile !== 'ALL',

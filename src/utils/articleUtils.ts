@@ -1,4 +1,4 @@
-import { Article, ArticleItem, ArticleRaw, Lot } from '../types';
+import { Article, ArticleItem, ArticleRaw, Lot, SortField } from '../types';
 
 export const TYPE_MAP: Record<string, { label: string; translationKey: string; icon: string; color: string; bg: string }> = {
   '0': { label: 'Voile', translationKey: 'typeGlider', icon: '🪂', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)' },
@@ -41,6 +41,90 @@ export const HOMOLOGATION_COLORS: Record<HomologationLevel, string> = {
   ccc: '#a855f7',
   '': 'var(--text-muted)',
 };
+
+/** Numeric order on the accessible → performance ladder, for sorting by homologation. */
+export const HOMOLOGATION_SORT_ORDER: Record<HomologationLevel, number> = {
+  a: 1,
+  b: 2,
+  c: 3,
+  d: 4,
+  ccc: 5,
+  '': 99,
+};
+
+/**
+ * Total-order sort key for the free-text `taille` field, which mixes garment
+ * sizes (S/M/L…), numeric wing/harness sizes ("20", "12,5") and free text.
+ * Ordering: known garment sizes (ranked), then numeric sizes, then the rest
+ * alphabetically — keeping the comparator transitive across all values.
+ */
+const TAILLE_RANK: Record<string, number> = {
+  XXS: 1, XS: 2, S: 3, 'X-S': 2, 'M/S': 3.5, 'S/M': 3.5, M: 4, 'M/L': 4.5, L: 5, XL: 6, 'X-L': 6, XXL: 7, XXXL: 8,
+};
+export function getTailleSortKey(raw: string): [number, number, string] {
+  const s = (raw || '').trim().toUpperCase();
+  if (s in TAILLE_RANK) return [0, TAILLE_RANK[s], s];
+  const n = parseFloat(s.replace(',', '.'));
+  if (!isNaN(n)) return [1, n, s];
+  return [2, 0, s];
+}
+
+/**
+ * Sort criteria relevant to a given category. When no type is selected ('ALL')
+ * or for accessories, only the universally meaningful sorts are offered; gliders
+ * add weight range (PTV) and certification, harnesses/reserves add size.
+ */
+export function getSortFieldsForType(typeCode: string): SortField[] {
+  switch (typeCode) {
+    case '0': // Voile / glider
+      return ['idLot', 'prixVente', 'marque', 'PTVMax', 'homologation', 'annee'];
+    case '1': // Sellette / harness
+    case '2': // Secours / reserve
+      return ['idLot', 'prixVente', 'marque', 'taille', 'annee'];
+    default: // '3' accessory and 'ALL' → most common sorts
+      return ['idLot', 'prixVente', 'marque', 'annee'];
+  }
+}
+
+/** Pick the article of the selected type within a lot (mixed lots promote the glider as primary). */
+export function articleForType(lot: Lot, selectedType: string): ArticleItem {
+  if (selectedType !== 'ALL') {
+    const match = lot.articles.find((a) => a.typeCode === selectedType);
+    if (match) return match;
+  }
+  return lot.primaryArticle;
+}
+
+/** Sort fields for which a grouped separator (by shared value) is meaningful. */
+export const GROUPABLE_SORT_FIELDS: SortField[] = ['marque', 'homologation', 'annee', 'taille'];
+
+/** Grouping key for a lot under the active sort, or null when the field isn't groupable. */
+export function getGroupValue(lot: Lot, sortField: SortField, selectedType: string): string | null {
+  if (!GROUPABLE_SORT_FIELDS.includes(sortField)) return null;
+  const art = articleForType(lot, selectedType);
+  switch (sortField) {
+    case 'marque': return (art.marque || '').toUpperCase();
+    case 'annee': return art.annee || '';
+    case 'taille': return (art.taille || '').toUpperCase();
+    case 'homologation': return getHomologationLevel(art.homologation);
+    default: return null;
+  }
+}
+
+/** Human label for a group value under the active sort (translated fallbacks for empty values). */
+export function formatGroupLabel(sortField: SortField, value: string, t: (key: any) => string): string {
+  if (sortField === 'homologation') {
+    const labels: Record<string, string> = { a: 'EN A', b: 'EN B', c: 'EN C', d: 'EN D', ccc: 'CCC' };
+    return labels[value] ?? t('groupNoHomologation');
+  }
+  if (!value) {
+    if (sortField === 'marque') return t('noBrand');
+    if (sortField === 'annee') return t('groupNoYear');
+    if (sortField === 'taille') return t('groupNoSize');
+    return '—';
+  }
+  return value;
+}
 
 /**
  * Group raw article items by `idLot` into rich `Lot` instances containing multiple `ArticleItem`s.

@@ -10,7 +10,7 @@ import { StatsBar } from './components/StatsBar';
 import { ArticleCompareModal } from './components/ArticleCompareModal';
 import { Article, ArticleRaw, FilterState, SortField, SortOrder, ViewMode } from './types';
 import { DEFAULT_S3_URL, PROD_S3_URL, TEST_S3_URL } from './data/mockData';
-import { filterArticles, groupRawIntoLots } from './utils/articleUtils';
+import { filterArticles, groupRawIntoLots, getSortFieldsForType, getHomologationLevel, HOMOLOGATION_SORT_ORDER, getTailleSortKey, articleForType, GROUPABLE_SORT_FIELDS, getGroupValue, formatGroupLabel } from './utils/articleUtils';
 import { AlertTriangle, GitCompare, Trash2 } from 'lucide-react';
 import { useI18n } from './i18n/I18nContext';
 import { useTheme } from './theme/ThemeContext';
@@ -147,13 +147,48 @@ export function App() {
 
   const filteredArticles = useMemo(() => {
     const list = filterArticles(articles, filters.searchQuery, filters.selectedStatus, filters.selectedType, filters.selectedBrand, filters.selectedHomologation, filters.selectedProfile, filters.minPrice, filters.maxPrice, filters.ptvTarget, filters.onlyFavorites, favoriteIds);
+    // When a specific type is selected, sort on that type's article within the lot
+    // (a mixed lot promotes the glider as primary, which would otherwise skew size/PTV sorts).
+    const artOf = (lot: Article) => articleForType(lot, filters.selectedType);
     return list.sort((a, b) => {
-      let aVal: any = (a as any)[sortField];
-      let bVal: any = (b as any)[sortField];
-      if (sortField === 'marque' || sortField === 'modele') { aVal = a.primaryArticle[sortField] || ''; bVal = b.primaryArticle[sortField] || ''; }
-      else if (sortField === 'PTVMax') { aVal = a.primaryArticle.PTVMax || 0; bVal = b.primaryArticle.PTVMax || 0; }
-      else if (sortField === 'annee') { aVal = a.primaryArticle.annee || ''; bVal = b.primaryArticle.annee || ''; }
-      if (sortField === 'idLot' || sortField === 'numeroCoupon') { aVal = parseInt(aVal, 10) || 0; bVal = parseInt(bVal, 10) || 0; }
+      let aVal: any;
+      let bVal: any;
+      switch (sortField) {
+        case 'idLot':
+        case 'numeroCoupon':
+          aVal = parseInt((a as any)[sortField], 10) || 0;
+          bVal = parseInt((b as any)[sortField], 10) || 0;
+          break;
+        case 'prixVente':
+          aVal = a.prixVente; bVal = b.prixVente;
+          break;
+        case 'marque':
+        case 'modele':
+          aVal = (artOf(a)[sortField] || '').toUpperCase();
+          bVal = (artOf(b)[sortField] || '').toUpperCase();
+          break;
+        case 'PTVMax':
+          aVal = artOf(a).PTVMax || 0; bVal = artOf(b).PTVMax || 0;
+          break;
+        case 'annee':
+          aVal = artOf(a).annee || ''; bVal = artOf(b).annee || '';
+          break;
+        case 'taille': {
+          const ka = getTailleSortKey(artOf(a).taille);
+          const kb = getTailleSortKey(artOf(b).taille);
+          const dir = sortOrder === 'asc' ? 1 : -1;
+          if (ka[0] !== kb[0]) return (ka[0] - kb[0]) * dir;
+          if (ka[1] !== kb[1]) return (ka[1] - kb[1]) * dir;
+          if (ka[2] !== kb[2]) return (ka[2] < kb[2] ? -1 : 1) * dir;
+          return 0;
+        }
+        case 'homologation':
+          aVal = HOMOLOGATION_SORT_ORDER[getHomologationLevel(artOf(a).homologation)];
+          bVal = HOMOLOGATION_SORT_ORDER[getHomologationLevel(artOf(b).homologation)];
+          break;
+        default:
+          aVal = (a as any)[sortField]; bVal = (b as any)[sortField];
+      }
       if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
       return 0;
@@ -161,18 +196,25 @@ export function App() {
   }, [articles, filters, favoriteIds, sortField, sortOrder]);
 
   const ptvTargetNum = filters.ptvTarget ? parseFloat(filters.ptvTarget) : null;
+  const showGroups = filteredArticles.length >= 12 && GROUPABLE_SORT_FIELDS.includes(sortField);
   const comparedArticlesList = useMemo(() => articles.filter((a) => comparedIds.has(a.idLot)), [articles, comparedIds]);
 
   const handleResetFilters = useCallback(() => {
     setFilters({ searchQuery: '', selectedStatus: 'ALL', selectedType: 'ALL', selectedBrand: 'ALL', selectedHomologation: 'ALL', selectedProfile: 'ALL', minPrice: '', maxPrice: '', ptvTarget: '', onlyFavorites: false });
+    setSortField('idLot');
+    setSortOrder('asc');
   }, []);
 
   const handleFilterChange = useCallback((newFilters: FilterState) => {
     if (newFilters.ptvTarget && newFilters.ptvTarget.trim() !== '' && newFilters.selectedType === 'ALL') {
       newFilters = { ...newFilters, selectedType: '0' };
     }
+    if (newFilters.selectedType !== filters.selectedType && !getSortFieldsForType(newFilters.selectedType).includes(sortField)) {
+      setSortField('idLot');
+      setSortOrder('asc');
+    }
     setFilters(newFilters);
-  }, []);
+  }, [filters.selectedType, sortField]);
 
   const handleSortChange = useCallback((field: SortField, order: SortOrder) => { setSortField(field); setSortOrder(order); }, []);
   const handleToggleFavoritesFilter = useCallback(() => { setFilters((f) => ({ ...f, onlyFavorites: !f.onlyFavorites })); }, []);
@@ -221,24 +263,41 @@ export function App() {
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid">
-            {filteredArticles.map((item) => (
-              <ArticleCard
-                key={item.idLot}
-                article={item}
-                isFavorite={favoriteIds.has(item.idLot)}
-                onToggleFavorite={handleToggleFavorite}
-                isCompared={comparedIds.has(item.idLot)}
-                onToggleCompare={handleToggleCompare}
-                onPress={handleSelectArticle}
-                ptvTargetNum={ptvTargetNum}
-              />
-            ))}
+            {(() => {
+              const els: React.ReactNode[] = [];
+              let lastGroup: string | null = null;
+              filteredArticles.forEach((item) => {
+                if (showGroups) {
+                  const g = getGroupValue(item, sortField, filters.selectedType) ?? '';
+                  if (g !== lastGroup) {
+                    lastGroup = g;
+                    els.push(
+                      <div className="grid-separator" key={`sep-${item.idLot}`}>{formatGroupLabel(sortField, g, t)}</div>
+                    );
+                  }
+                }
+                els.push(
+                  <ArticleCard
+                    key={item.idLot}
+                    article={item}
+                    isFavorite={favoriteIds.has(item.idLot)}
+                    onToggleFavorite={handleToggleFavorite}
+                    isCompared={comparedIds.has(item.idLot)}
+                    onToggleCompare={handleToggleCompare}
+                    onPress={handleSelectArticle}
+                    ptvTargetNum={ptvTargetNum}
+                  />
+                );
+              });
+              return els;
+            })()}
           </div>
         ) : (
           <ArticleTable
             articles={filteredArticles} favoriteIds={favoriteIds} onToggleFavorite={handleToggleFavorite}
             onSelectArticle={handleSelectArticle} sortField={sortField} sortOrder={sortOrder}
             onSortChange={handleSortChange} ptvTargetNum={ptvTargetNum}
+            selectedType={filters.selectedType} showGroups={showGroups}
           />
         )}
       </main>
