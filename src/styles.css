@@ -62,7 +62,8 @@ input, select { font: inherit; }
 
 /* Advanced panel */
 .filterbar-advanced { border-top: 1px solid var(--border-main); padding-top: 10px; display: flex; flex-direction: column; gap: 10px; }
-.filterbar-advanced-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.filterbar-advanced-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; align-items: end; }
+.filterbar-advanced-grid .filterbar-select { width: 100%; padding: 10px 12px; font-size: 14px; }
 
 /* Mobile: collapse category & sort rows behind the Filters button */
 @media (max-width: 639px) {
@@ -77,10 +78,10 @@ input, select { font: inherit; }
 @media (min-width: 1400px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
 /* --- Group separators (grid + table) --- */
-.grid-separator { grid-column: 1 / -1; display: flex; align-items: center; padding: 6px 4px 4px; margin-top: 4px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); border-bottom: 1px solid var(--border-main); }
+.grid-separator { grid-column: 1 / -1; position: sticky; top: -20px; z-index: 3; display: flex; align-items: center; padding: 10px 4px 6px; margin-top: 4px; background: var(--bg-app); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); border-bottom: 1px solid var(--border-main); }
 .grid-separator:first-child { margin-top: 0; }
 .table-group-sep { cursor: default; }
-.table-group-sep td { background: var(--bg-section); font-family: 'Outfit', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; color: var(--accent); padding: 6px 12px; border-bottom: 1px solid var(--border-main); }
+.table-group-sep td { position: sticky; top: 33px; z-index: 1; background: var(--bg-section); font-family: 'Outfit', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; color: var(--accent); padding: 6px 12px; border-bottom: 1px solid var(--border-main); }
 .table-group-sep:hover td { background: var(--bg-section); }
 
 /* --- Article Card --- */
@@ -155,7 +156,7 @@ input, select { font: inherit; }
 .modal-btn--danger:hover { background: color-mix(in srgb, var(--danger) 25%, transparent); }
 
 /* --- Form Fields (in modals/settings) --- */
-.form-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; }
+.form-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; }
 .form-input { width: 100%; padding: 10px 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid var(--border-main); color: var(--text-primary); font-size: 14px; outline: none; }
 .form-input:focus { border-color: var(--accent); }
 .form-help { font-size: 11px; color: var(--text-muted); margin-top: 4px; }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { Article, SortField, SortOrder } from '../types';
-import { TYPE_MAP, getGroupValue, formatGroupLabel } from '../utils/articleUtils';
+import { TYPE_MAP, getGroupValue, formatGroupLabel, getHomologationLevel, HOMOLOGATION_COLORS } from '../utils/articleUtils';
 import { useI18n } from '../i18n/I18nContext';
 
 interface ArticleTableProps {
@@ -38,6 +38,7 @@ const ArticleTableComponent: React.FC<ArticleTableProps> = ({
     { field: 'marque', label: t('sortBrand'), width: '120px' },
     { field: 'prixVente', label: t('sortPrice'), width: '100px' },
     { field: 'PTVMax', label: t('ptvLabel'), width: '100px' },
+    { field: 'homologation', label: t('sortHomologation'), width: '120px' },
     { field: 'annee', label: t('sortYear'), width: '80px' },
     { field: null, label: '♥', width: '50px' },
   ];
@@ -82,6 +83,7 @@ const ArticleTableComponent: React.FC<ArticleTableProps> = ({
                   <td>{primary.marque} {primary.modele}</td>
                   <td><strong style={{ color: 'var(--success)' }}>{article.prixVenteStr}</strong></td>
                   <td>{primary.PTVMax > 0 ? `${primary.PTVMin}-${primary.PTVMax} kg` : '-'}</td>
+                  <td>{primary.homologation ? <span style={{ color: HOMOLOGATION_COLORS[getHomologationLevel(primary.homologation)], fontWeight: 600 }}>{primary.homologation}</span> : '-'}</td>
                   <td>{primary.annee || '-'}</td>
                   <td>
                     <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(article.idLot); }} style={{ padding: 4 }}>

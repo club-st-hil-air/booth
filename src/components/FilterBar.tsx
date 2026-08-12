@@ -31,15 +31,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     { code: '3', label: t('accessories'), icon: '🛠' },
   ];
 
-  const profiles = [
-    { code: 'ALL', label: t('allLevels') },
-    { code: 'school', label: t('levelSchool') },
-    { code: 'progression', label: t('levelProgression') },
-    { code: 'performance', label: t('levelPerformance') },
-    { code: 'light', label: t('levelLight') },
-    { code: 'tandem', label: t('levelTandem') },
-  ];
-
   const sortLabels: Partial<Record<SortField, string>> = {
     idLot: 'sortLot',
     prixVente: 'sortPrice',
@@ -53,7 +44,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     .map((field) => ({ field, key: sortLabels[field] ?? 'sortLot' }));
 
   const activeAdvancedCount = [
-    filters.selectedProfile !== 'ALL',
     filters.selectedBrand !== 'ALL',
     filters.selectedHomologation !== 'ALL',
     Boolean(filters.minPrice),
@@ -124,16 +114,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       {/* Advanced panel (profiles, brand, homologation, price, PTV) */}
       {showAdvanced && (
         <div className="filterbar-advanced">
-          {/* Profiles row */}
-          <div className="filterbar-row">
-            <span className="filter-group-label">{t('filterGroupLevel')}</span>
-            {profiles.map((pf) => (
-              <button key={pf.code} className={`pill ${filters.selectedProfile === pf.code ? 'pill--active' : ''}`} onClick={() => onFilterChange({ ...filters, selectedProfile: pf.code })}>
-                {pf.label}
-              </button>
-            ))}
-          </div>
-
           {/* Advanced filters grid */}
           <div className="filterbar-advanced-grid">
             <div>
