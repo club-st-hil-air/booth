@@ -162,10 +162,6 @@ export function groupRawIntoLots(rawArticles: ArticleRaw[]): Lot[] {
 
     if (!lotMap.has(key)) {
       const prix = parseFloat(raw.prixVente || '0') || 0;
-      let vendeurInfo = '';
-      if (raw.prenomVendeur || raw.nomVendeur) {
-        vendeurInfo = `${raw.prenomVendeur || ''} ${raw.nomVendeur || ''}`.trim();
-      }
 
       lotMap.set(key, {
         idLot: raw.idLot || '',
@@ -173,8 +169,6 @@ export function groupRawIntoLots(rawArticles: ArticleRaw[]): Lot[] {
         prixVente: prix,
         prixVenteStr: `${prix} €`,
         statut: raw.statut || 'En vente',
-        vendeurInfo: vendeurInfo || undefined,
-        vendeurTel: raw.telephoneVendeur || undefined,
         articles: [item],
         primaryArticle: item,
         title: `${item.marque} ${item.modele}`.trim(),
@@ -302,8 +296,6 @@ export function filterArticles(
         lot.numeroCoupon,
         lot.statut,
         lot.title,
-        lot.vendeurInfo || '',
-        lot.vendeurTel || '',
         ...lot.articles.map((a) => `${a.typeLabel} ${a.marque} ${a.modele} ${a.homologation} ${a.taille} ${a.annee} ${a.couleurVoile} ${a.commentaire}`),
       ]
         .join(' ')

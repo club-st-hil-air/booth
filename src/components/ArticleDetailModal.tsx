@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Heart, Gauge, Calendar, Shield, Tag, Maximize2, User, Phone, FileText, Copy, Check, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Heart, Gauge, Calendar, Shield, Tag, Maximize2, FileText, Copy, Check, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Article } from '../types';
 import { TYPE_MAP } from '../utils/articleUtils';
 import { useI18n } from '../i18n/I18nContext';
@@ -112,14 +112,16 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
         <div className="modal-body">
           {/* Hero */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span className="card-type-badge">{items.length > 1 ? '📦' : typeConfig.icon} {items.length > 1 ? t('articlesCount', { count: items.length }) : (typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label)}</span>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <span className="card-type-badge">{items.length > 1 ? '📦' : typeConfig.icon} {items.length > 1 ? t('articlesCount', { count: items.length }) : (typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label)}</span>
+                <span className="card-brand">{primary.marque || t('noBrand')}</span>
+              </div>
+              <span className="card-price">{article.prixVenteStr}</span>
             </div>
-            <span className="card-brand">{primary.marque || t('noBrand')}</span>
             <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>
               {article.title || primary.modele || t('noModel')}
             </span>
-            <span className="card-price" style={{ alignSelf: 'flex-start' }}>{article.prixVenteStr}</span>
           </div>
 
           {/* PTV Gauge */}
@@ -146,20 +148,29 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
 
           {/* Articles in Lot */}
           <div className="detail-section">
-            <span className="detail-section-title">{t('techSpecs')} ({items.length})</span>
+            <span className="detail-section-title">{t('techSpecs')}{items.length > 1 ? ` (${items.length})` : ''}</span>
             {items.map((item, idx) => {
               const keywords = getItemSearchKeywords(item.typeCode, lang);
               const searchLabel = `${item.marque} ${item.modele}`.trim() || item.typeLabel;
               const region = t('searchRegion');
+              // Single-article lots: the hero already shows type/brand/model, so
+              // drop the per-item header and the surrounding box to avoid duplication.
+              const single = items.length === 1;
+              const wrapperStyle: React.CSSProperties = single
+                ? { display: 'flex', flexDirection: 'column', gap: 8 }
+                : { background: 'var(--bg-section)', borderRadius: 10, padding: 12, border: '1px solid var(--border-main)', display: 'flex', flexDirection: 'column', gap: 8 };
               return (
-                <div key={idx} style={{ background: 'var(--bg-section)', borderRadius: 10, padding: 12, border: '1px solid var(--border-main)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 16 }}>{item.typeIcon}</span>
-                    <strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>{TYPE_MAP[item.typeCode]?.translationKey ? t(TYPE_MAP[item.typeCode].translationKey as any) : item.typeLabel}: {item.marque} {item.modele}</strong>
-                  </div>
+                <div key={idx} style={wrapperStyle}>
+                  {!single && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 16 }}>{item.typeIcon}</span>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>{TYPE_MAP[item.typeCode]?.translationKey ? t(TYPE_MAP[item.typeCode].translationKey as any) : item.typeLabel}: {item.marque} {item.modele}</strong>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {item.homologation && <div className="detail-row"><Shield size={14} className="detail-row-icon" /><span className="detail-row-label">{t('homologationLabel')}</span><span className="detail-row-value">{item.homologation}</span></div>}
-                    {(item.PTVMin > 0 || item.PTVMax > 0) && <div className="detail-row"><Gauge size={14} className="detail-row-icon" /><span className="detail-row-label">{t('ptvLabel')}</span><span className="detail-row-value">{item.PTVMin || '?'} - {item.PTVMax || '?'} kg</span></div>}
+                    {/* PTV omitted here when the top gauge already displays it for this glider */}
+                    {(item.PTVMin > 0 || item.PTVMax > 0) && item !== glider && <div className="detail-row"><Gauge size={14} className="detail-row-icon" /><span className="detail-row-label">{t('ptvLabel')}</span><span className="detail-row-value">{item.PTVMin || '?'} - {item.PTVMax || '?'} kg</span></div>}
                     {item.taille && <div className="detail-row"><Maximize2 size={14} className="detail-row-icon" /><span className="detail-row-label">{t('sizeLabel')}</span><span className="detail-row-value">{item.taille}</span></div>}
                     {item.annee && <div className="detail-row"><Calendar size={14} className="detail-row-icon" /><span className="detail-row-label">{t('yearLabel')}</span><span className="detail-row-value">{item.annee}</span></div>}
                     {item.couleurVoile && <div className="detail-row"><Tag size={14} className="detail-row-icon" /><span className="detail-row-label">{t('colorLabel')}</span><span className="detail-row-value">{item.couleurVoile}</span></div>}
@@ -174,17 +185,6 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
               );
             })}
           </div>
-
-          {/* Seller */}
-          {(article.vendeurInfo || article.vendeurTel) && (
-            <div className="detail-section">
-              <span className="detail-section-title">{t('sellerInfo')}</span>
-              <div style={{ background: 'var(--bg-section)', borderRadius: 10, padding: 12, border: '1px solid var(--border-main)', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {article.vendeurInfo && <div className="detail-row"><User size={16} color="var(--success)" /><span className="detail-row-value">{article.vendeurInfo}</span></div>}
-                {article.vendeurTel && <div className="detail-row"><Phone size={16} color="var(--success)" /><span className="detail-row-value">{article.vendeurTel}</span></div>}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Footer */}

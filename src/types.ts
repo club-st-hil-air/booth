@@ -13,9 +13,6 @@ export interface ArticleRaw {
   annee?: string;
   couleurVoile?: string;
   commentaire?: string;
-  prenomVendeur?: string;
-  nomVendeur?: string;
-  telephoneVendeur?: string;
 }
 
 export type CategoryType = '0' | '1' | '2' | '3';
@@ -41,8 +38,6 @@ export interface Lot {
   prixVente: number;
   prixVenteStr: string;
   statut: string;
-  vendeurInfo?: string;
-  vendeurTel?: string;
   articles: ArticleItem[];
   primaryArticle: ArticleItem;
   title: string;

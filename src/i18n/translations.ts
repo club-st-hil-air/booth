@@ -17,7 +17,7 @@ export const TRANSLATIONS = {
     favoritesBtn: "Favoris",
     refreshing: "Chargement...",
     // FilterBar
-    searchPlaceholder: "Rechercher (n° lot, coupon, marque, modèle, homologation, vendeur...)",
+    searchPlaceholder: "Rechercher (n° lot, coupon, marque, modèle, homologation...)",
     filtersBtn: "Filtres",
     allCategories: "Tous",
     gliders: "Voiles",
@@ -73,7 +73,6 @@ export const TRANSLATIONS = {
     // Details Modal
     techSpecs: "Caractéristiques Techniques",
     comments: "Commentaires / État du matériel",
-    sellerInfo: "Informations Vendeur",
     copySummary: "Copier résumé",
     copied: "Copié !",
     printCoupon: "Imprimer coupon",
@@ -147,7 +146,7 @@ export const TRANSLATIONS = {
     favoritesBtn: "Favorites",
     refreshing: "Loading...",
     // FilterBar
-    searchPlaceholder: "Search (lot #, coupon, brand, model, cert, seller...)",
+    searchPlaceholder: "Search (lot #, coupon, brand, model, cert...)",
     filtersBtn: "Filters",
     allCategories: "All",
     gliders: "Gliders",
@@ -203,7 +202,6 @@ export const TRANSLATIONS = {
     // Details Modal
     techSpecs: "Technical Specifications",
     comments: "Comments / Gear Condition",
-    sellerInfo: "Seller Information",
     copySummary: "Copy Summary",
     copied: "Copied!",
     printCoupon: "Print Tag",
@@ -277,7 +275,7 @@ export const TRANSLATIONS = {
     favoritesBtn: "Favoritos",
     refreshing: "Cargando...",
     // FilterBar
-    searchPlaceholder: "Buscar (n° lote, cupón, marca, modelo, homologación, vendedor...)",
+    searchPlaceholder: "Buscar (n° lote, cupón, marca, modelo, homologación...)",
     filtersBtn: "Filtros",
     allCategories: "Todos",
     gliders: "Velas",
@@ -333,7 +331,6 @@ export const TRANSLATIONS = {
     // Details Modal
     techSpecs: "Especificaciones Técnicas",
     comments: "Comentarios / Estado del equipo",
-    sellerInfo: "Información del Vendedor",
     copySummary: "Copiar resumen",
     copied: "¡Copiado!",
     printCoupon: "Imprimir etiqueta",
@@ -407,7 +404,7 @@ export const TRANSLATIONS = {
     favoritesBtn: "Favoriten",
     refreshing: "Laden...",
     // FilterBar
-    searchPlaceholder: "Suchen (Lot-Nr., Coupon, Marke, Modell, Gütesiegel, Verkäufer...)",
+    searchPlaceholder: "Suchen (Lot-Nr., Coupon, Marke, Modell, Gütesiegel...)",
     filtersBtn: "Filter",
     allCategories: "Alle",
     gliders: "Schirme",
@@ -463,7 +460,6 @@ export const TRANSLATIONS = {
     // Details Modal
     techSpecs: "Technische Daten",
     comments: "Kommentare / Zustand",
-    sellerInfo: "Verkäufer-Informationen",
     copySummary: "Zusammenfassung kopieren",
     copied: "Kopiert!",
     printCoupon: "Coupon drucken",

@@ -133,11 +133,6 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
           <span className="card-comment-text">{primary.commentaire}</span>
         </div>
       )}
-
-      {/* Footer */}
-      <div className="card-footer">
-        <span className="card-footer-link">{t('viewDetails')}</span>
-      </div>
     </div>
   );
 };
