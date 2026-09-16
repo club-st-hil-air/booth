@@ -152,7 +152,6 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
             {items.map((item, idx) => {
               const keywords = getItemSearchKeywords(item.typeCode, lang);
               const searchLabel = `${item.marque} ${item.modele}`.trim() || item.typeLabel;
-              const region = t('searchRegion');
               // Single-article lots: the hero already shows type/brand/model, so
               // drop the per-item header and the surrounding box to avoid duplication.
               const single = items.length === 1;
@@ -178,8 +177,8 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                   {item.commentaire && (
                     <div className="card-comment"><FileText size={12} style={{ flexShrink: 0, marginTop: 2 }} /><span className="card-comment-text">{item.commentaire}</span></div>
                   )}
-                  <button className="detail-action-btn" onClick={() => { const q = encodeURIComponent(`${searchLabel} ${keywords}`); window.open(`https://duckduckgo.com/?q=${q}&kl=${region}`, '_blank'); }}>
-                    <Search size={14} color="var(--accent)" /> {t('searchDuckDuckGo')} ({searchLabel})
+                  <button className="detail-action-btn" onClick={() => { const q = encodeURIComponent(`${searchLabel} ${keywords}`); window.open(`https://www.ecosia.org/search?q=${q}`, '_blank'); }}>
+                    <Search size={14} color="var(--accent)" /> {t('searchEcosia')} ({searchLabel})
                   </button>
                 </div>
               );
