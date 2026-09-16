@@ -76,9 +76,8 @@ export const TRANSLATIONS = {
     copySummary: "Copier résumé",
     copied: "Copié !",
     printCoupon: "Imprimer coupon",
-    searchDuckDuckGo: "Rechercher essais & avis sur DuckDuckGo 🦆",
+    searchEcosia: "Rechercher essais & avis sur Ecosia 🌱",
     searchKeywords: "parapente essai test avis",
-    searchRegion: "fr-fr",
     // Compare
     compareBarTitle: "{count} lot(s) sélectionné(s) pour comparaison",
     compareBtn: "Comparer les lots",
@@ -205,9 +204,8 @@ export const TRANSLATIONS = {
     copySummary: "Copy Summary",
     copied: "Copied!",
     printCoupon: "Print Tag",
-    searchDuckDuckGo: "Search Reviews & Tests on DuckDuckGo 🦆",
+    searchEcosia: "Search Reviews & Tests on Ecosia 🌱",
     searchKeywords: "paraglider review test",
-    searchRegion: "wt-wt",
     // Compare
     compareBarTitle: "{count} item(s) selected for comparison",
     compareBtn: "Compare Selected",
@@ -334,9 +332,8 @@ export const TRANSLATIONS = {
     copySummary: "Copiar resumen",
     copied: "¡Copiado!",
     printCoupon: "Imprimir etiqueta",
-    searchDuckDuckGo: "Buscar pruebas & opiniones en DuckDuckGo 🦆",
+    searchEcosia: "Buscar pruebas & opiniones en Ecosia 🌱",
     searchKeywords: "parapente prueba opinion",
-    searchRegion: "es-es",
     // Compare
     compareBarTitle: "{count} lote(s) seleccionado(s) para comparar",
     compareBtn: "Comparar lotes",
@@ -463,9 +460,8 @@ export const TRANSLATIONS = {
     copySummary: "Zusammenfassung kopieren",
     copied: "Kopiert!",
     printCoupon: "Coupon drucken",
-    searchDuckDuckGo: "Tests & Testberichte auf DuckDuckGo suchen 🦆",
+    searchEcosia: "Tests & Testberichte auf Ecosia suchen 🌱",
     searchKeywords: "gleitschirm testbericht test",
-    searchRegion: "de-de",
     // Compare
     compareBarTitle: "{count} Artikel zum Vergleich ausgewählt",
     compareBtn: "Artikel vergleichen",
