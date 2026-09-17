@@ -78,7 +78,7 @@ const ArticleTableComponent: React.FC<ArticleTableProps> = ({
               const isFav = favoriteIds.has(article.idLot);
               rows.push(
                 <tr key={article.idLot} onClick={() => onSelectArticle(article)}>
-                  <td><strong style={{ color: 'var(--accent)' }}>#{article.idLot}</strong></td>
+                  <td><strong style={{ color: 'var(--accent)' }}>#{article.numeroCoupon}</strong></td>
                   <td><span>{typeConfig.icon} {typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label}</span></td>
                   <td>{primary.marque} {primary.modele}</td>
                   <td><strong style={{ color: 'var(--success)' }}>{article.prixVenteStr}</strong></td>
