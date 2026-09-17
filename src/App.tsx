@@ -13,7 +13,7 @@ import { AlertSetupModal } from './components/AlertSetupModal';import { Article,
 import { DEFAULT_S3_URL, PROD_S3_URL, TEST_S3_URL } from './data/mockData';
 import { filterArticles, groupRawIntoLots, getSortFieldsForType, getHomologationLevel, HOMOLOGATION_SORT_ORDER, getTailleSortKey, articleForType, GROUPABLE_SORT_FIELDS, getGroupValue, formatGroupLabel } from './utils/articleUtils';
 import { AlertSubscription, loadAlert, saveAlert, clearAlert, findNewMatches, summarizeFilter } from './utils/notifications';
-import { AlertTriangle, GitCompare, Trash2 } from 'lucide-react';
+import { AlertTriangle, GitCompare, Trash2, Bell } from 'lucide-react';
 import { useI18n } from './i18n/I18nContext';
 import { useTheme } from './theme/ThemeContext';
 
@@ -60,6 +60,7 @@ export function App() {
   // Alert subscription (client-side, tab-open): watch a filter and pop new matching lots.
   const [alertSub, setAlertSub] = useState<AlertSubscription | null>(() => loadAlert());
   const [newMatches, setNewMatches] = useState<Article[]>([]);
+  const [viewNewIds, setViewNewIds] = useState<Set<string> | null>(null);
   const [alertSetupVisible, setAlertSetupVisible] = useState<boolean>(false);
 
   const handleToggleFavorite = useCallback((idLot: string) => {
@@ -189,12 +190,15 @@ export function App() {
     }
   }, [articles, alertSub, matchesForFilter, t]);
 
-  // "Consulter" — apply the watched filter and dismiss the toast.
+  // "Consulter" — show EXACTLY the new lots from the alert: restrict the view to
+  // their idLots and apply the watched filter (for consistent sort/type context).
   const handleViewNewMatches = useCallback(() => {
+    const ids = new Set(newMatches.map((l) => l.idLot));
     if (alertSub) handleFilterChange(alertSub.filters);
+    setViewNewIds(ids.size > 0 ? ids : null);
     setNewMatches([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alertSub]);
+  }, [alertSub, newMatches]);
 
   const availableBrands = useMemo(() => {
     const set = new Set<string>();
@@ -209,7 +213,9 @@ export function App() {
   }, [articles]);
 
   const filteredArticles = useMemo(() => {
-    const list = filterArticles(articles, filters.searchQuery, filters.selectedStatus, filters.selectedType, filters.selectedBrand, filters.selectedHomologation, filters.selectedProfile, filters.minPrice, filters.maxPrice, filters.ptvTarget, filters.onlyFavorites, favoriteIds);
+    let list = filterArticles(articles, filters.searchQuery, filters.selectedStatus, filters.selectedType, filters.selectedBrand, filters.selectedHomologation, filters.selectedProfile, filters.minPrice, filters.maxPrice, filters.ptvTarget, filters.onlyFavorites, favoriteIds);
+    // "Consulter" mode: restrict to exactly the new lots surfaced by the alert.
+    if (viewNewIds) list = list.filter((lot) => viewNewIds.has(lot.idLot));
     // When a specific type is selected, sort on that type's article within the lot
     // (a mixed lot promotes the glider as primary, which would otherwise skew size/PTV sorts).
     const artOf = (lot: Article) => articleForType(lot, filters.selectedType);
@@ -256,7 +262,7 @@ export function App() {
       if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [articles, filters, favoriteIds, sortField, sortOrder]);
+  }, [articles, filters, favoriteIds, sortField, sortOrder, viewNewIds]);
 
   const ptvTargetNum = filters.ptvTarget ? parseFloat(filters.ptvTarget) : null;
   const showGroups = filteredArticles.length >= 12 && GROUPABLE_SORT_FIELDS.includes(sortField);
@@ -266,9 +272,11 @@ export function App() {
     setFilters({ searchQuery: '', selectedStatus: 'ALL', selectedType: 'ALL', selectedBrand: 'ALL', selectedHomologation: 'ALL', selectedProfile: 'ALL', minPrice: '', maxPrice: '', ptvTarget: '', onlyFavorites: false });
     setSortField('numeroCoupon');
     setSortOrder('asc');
+    setViewNewIds(null);
   }, []);
 
   const handleFilterChange = useCallback((newFilters: FilterState) => {
+    setViewNewIds(null);
     if (newFilters.ptvTarget && newFilters.ptvTarget.trim() !== '' && newFilters.selectedType === 'ALL') {
       newFilters = { ...newFilters, selectedType: '0' };
     }
@@ -299,6 +307,14 @@ export function App() {
         brands={availableBrands} homologations={availableHomologations} onResetFilters={handleResetFilters}
         alertActive={Boolean(alertSub)} onToggleAlert={handleToggleAlert}
       />
+
+      {viewNewIds && (
+        <div className="new-lots-banner">
+          <Bell size={16} color="var(--accent)" />
+          <span className="new-lots-banner-text">{t('viewingNewLots', { count: viewNewIds.size })}</span>
+          <button className="new-lots-banner-btn" onClick={() => setViewNewIds(null)}>{t('showAllLots')}</button>
+        </div>
+      )}
 
       {isTestData && (
         <div className="test-data-banner">
