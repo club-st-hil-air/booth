@@ -34,7 +34,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   ];
 
   const sortLabels: Partial<Record<SortField, string>> = {
-    idLot: 'sortLot',
+    numeroCoupon: 'sortLot',
     prixVente: 'sortPrice',
     marque: 'sortBrand',
     PTVMax: 'sortPtv',

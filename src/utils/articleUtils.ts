@@ -77,12 +77,12 @@ export function getTailleSortKey(raw: string): [number, number, string] {
 export function getSortFieldsForType(typeCode: string): SortField[] {
   switch (typeCode) {
     case '0': // Voile / glider
-      return ['idLot', 'prixVente', 'marque', 'PTVMax', 'homologation', 'annee'];
+      return ['numeroCoupon', 'prixVente', 'marque', 'PTVMax', 'homologation', 'annee'];
     case '1': // Sellette / harness
     case '2': // Secours / reserve
-      return ['idLot', 'prixVente', 'marque', 'taille', 'annee'];
+      return ['numeroCoupon', 'prixVente', 'marque', 'taille', 'annee'];
     default: // '3' accessory and 'ALL' → most common sorts
-      return ['idLot', 'prixVente', 'marque', 'annee'];
+      return ['numeroCoupon', 'prixVente', 'marque', 'annee'];
   }
 }
 
