@@ -2,6 +2,7 @@ import React from 'react';
 import { Heart, Tag, Calendar, Shield, Gauge, Maximize2, FileText, GitCompare } from 'lucide-react';
 import { Article } from '../types';
 import { TYPE_MAP, getHomologationLevel, HOMOLOGATION_COLORS } from '../utils/articleUtils';
+import { ColorPalette } from './ColorPalette';
 import { useI18n } from '../i18n/I18nContext';
 
 interface ArticleCardProps {
@@ -122,7 +123,10 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
           );
         })()}
         {primary.couleurVoile !== '' && (
-          <span className="card-spec"><Tag size={13} color="var(--text-muted)" />{primary.couleurVoile}</span>
+          <span className="card-spec">
+            <Tag size={13} color="var(--text-muted)" />{primary.couleurVoile}
+            {primary.typeCode === '0' && <ColorPalette couleurVoile={primary.couleurVoile} size={12} />}
+          </span>
         )}
       </div>
 

@@ -23,6 +23,52 @@ export function decodeEntities(input: string): string {
     .replace(/&amp;/g, '&');
 }
 
+/**
+ * Map of known colour names (FR + EN + a few common commercial colourway names)
+ * to a display hex, keyed by a normalised token (lowercase, accent-stripped).
+ * Used to render a small colour swatch row for gliders. Unknown tokens are ignored.
+ */
+const COLOR_NAME_TO_HEX: Record<string, string> = {
+  // French
+  rouge: '#e53935', orange: '#fb8c00', jaune: '#fdd835', vert: '#43a047', verte: '#43a047',
+  bleu: '#1e88e5', bleue: '#1e88e5', violet: '#8e24aa', violette: '#8e24aa', rose: '#ec407a',
+  noir: '#212121', noire: '#212121', blanc: '#fafafa', blanche: '#fafafa', gris: '#9e9e9e', grise: '#9e9e9e',
+  marron: '#795548', turquoise: '#26c6da', lime: '#c0ca33', corail: '#ff7043', argent: '#bdbdbd', or: '#ffd700',
+  // English
+  red: '#e53935', green: '#43a047', blue: '#1e88e5', yellow: '#fdd835', purple: '#8e24aa',
+  pink: '#ec407a', black: '#212121', white: '#fafafa', grey: '#9e9e9e', gray: '#9e9e9e',
+  brown: '#795548', coral: '#ff7043', silver: '#bdbdbd', gold: '#ffd700', lavender: '#b39ddb',
+  // Commercial colourway names that map unambiguously
+  ocean: '#0277bd', azur: '#039be5', azzurro: '#039be5', azura: '#039be5', petrol: '#00838f',
+  sunset: '#ff7043', fire: '#e53935', flame: '#e53935', citrus: '#c0ca33', acid: '#c0ca33',
+  forest: '#2e7d32', royal: '#1565c0', polar: '#e3f2fd', lilac: '#ce93d8',
+};
+
+/**
+ * Parse a free-text colour field ("Rouge/Noir/Blanc", "bleu blanc jaune",
+ * "Verte-orange") into a list of {name, hex} swatches. Splits on separators,
+ * normalises each token, and keeps only tokens that resolve to a known colour.
+ * Order and duplicates within the string are preserved (deduped by hex).
+ */
+export function parseColors(couleurVoile: string): { name: string; hex: string }[] {
+  if (!couleurVoile) return [];
+  const tokens = couleurVoile
+    .split(/[\s,/\-–—+&()]+|\bet\b|\bplus\b/i)
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const out: { name: string; hex: string }[] = [];
+  const seen = new Set<string>();
+  for (const tok of tokens) {
+    const key = tok.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const hex = COLOR_NAME_TO_HEX[key];
+    if (hex && !seen.has(hex)) {
+      seen.add(hex);
+      out.push({ name: tok, hex });
+    }
+  }
+  return out;
+}
+
 export const TYPE_MAP: Record<string, { label: string; translationKey: string; icon: string; color: string; bg: string }> = {
   '0': { label: 'Voile', translationKey: 'typeGlider', icon: '🪂', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)' },
   '1': { label: 'Sellette', translationKey: 'typeHarness', icon: '💺', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' },
