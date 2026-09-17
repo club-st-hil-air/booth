@@ -1,5 +1,28 @@
 import { Article, ArticleItem, ArticleRaw, Lot, SortField } from '../types';
 
+/**
+ * Decode HTML entities (&#039; -> ', &amp; -> &, &quot; -> ", ...) coming from the
+ * upstream JSON, which stores depositor-entered text HTML-escaped. Uses the browser's
+ * native parser (handles every entity); falls back to a small table when the DOM is
+ * unavailable (SSR / tests).
+ */
+export function decodeEntities(input: string): string {
+  if (!input || input.indexOf('&') === -1) return input;
+  if (typeof document !== 'undefined') {
+    const el = document.createElement('textarea');
+    el.innerHTML = input;
+    return el.value;
+  }
+  return input
+    .replace(/&#0*39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0*34;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+}
+
 export const TYPE_MAP: Record<string, { label: string; translationKey: string; icon: string; color: string; bg: string }> = {
   '0': { label: 'Voile', translationKey: 'typeGlider', icon: '🪂', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)' },
   '1': { label: 'Sellette', translationKey: 'typeHarness', icon: '💺', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' },
@@ -149,15 +172,15 @@ export function groupRawIntoLots(rawArticles: ArticleRaw[]): Lot[] {
       typeCode: raw.type || '3',
       typeLabel: typeInfo.label,
       typeIcon: typeInfo.icon,
-      marque: (raw.marque || '').trim(),
-      modele: (raw.modele || '').trim(),
-      homologation: (raw.homologation || '').replace(/&amp;/g, '&').trim(),
+      marque: decodeEntities((raw.marque || '').trim()),
+      modele: decodeEntities((raw.modele || '').trim()),
+      homologation: decodeEntities((raw.homologation || '').trim()),
       PTVMin: parseFloat(raw.PTVMin || '0') || 0,
       PTVMax: parseFloat(raw.PTVMax || '0') || 0,
-      taille: (raw.taille || '').trim(),
+      taille: decodeEntities((raw.taille || '').trim()),
       annee: (raw.annee || '').trim(),
-      couleurVoile: (raw.couleurVoile || '').trim(),
-      commentaire: (raw.commentaire || '').trim(),
+      couleurVoile: decodeEntities((raw.couleurVoile || '').trim()),
+      commentaire: decodeEntities((raw.commentaire || '').trim()),
     };
 
     if (!lotMap.has(key)) {
