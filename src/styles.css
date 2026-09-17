@@ -13,6 +13,13 @@ input, select { font: inherit; }
 .app { display: flex; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-app); }
 .main-scroll { flex: 1; overflow-y: auto; padding: 20px; }
 
+/* Desktop readability: scale the whole UI up ~20% (fonts, spacing, icons all
+   follow proportionally). Scoped above the mobile breakpoint so phones keep
+   their current denser layout. */
+@media (min-width: 641px) {
+  .app { zoom: 1.2; }
+}
+
 /* --- Header --- */
 .header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--bg-header); border-bottom: 1px solid var(--border-main); flex-wrap: wrap; }
 .header-brand { display: flex; align-items: center; gap: 8px; }
@@ -294,3 +301,48 @@ input, select { font: inherit; }
     max-width: none;
   }
 }
+
+/* --- Alert toast: new lots matching the watched filter (client-side, tab-open) --- */
+.alert-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 72px;
+  z-index: 60;
+  width: min(360px, calc(100vw - 32px));
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: alert-toast-in 0.25s ease-out;
+}
+@keyframes alert-toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.alert-toast-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.alert-toast-title { display: flex; align-items: center; gap: 7px; font-weight: 800; font-size: 13px; color: var(--text-primary); }
+.alert-toast-close { display: flex; align-items: center; justify-content: center; padding: 3px; border-radius: 6px; color: var(--text-muted); background: transparent; }
+.alert-toast-close:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.alert-toast-filter { font-size: 11px; font-weight: 600; color: var(--text-muted); background: var(--bg-section, var(--bg-card-hover)); border-radius: 6px; padding: 4px 8px; }
+.alert-toast-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; max-height: 180px; overflow-y: auto; }
+.alert-toast-item { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--text-primary); }
+.alert-toast-item-lot { flex-shrink: 0; font-weight: 800; color: var(--accent); font-size: 11px; }
+.alert-toast-item-desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.alert-toast-item--more { font-style: italic; color: var(--text-muted); }
+.alert-toast-btn { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 2px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; background: var(--accent); color: #fff; transition: filter 0.15s; }
+.alert-toast-btn:hover { filter: brightness(1.08); }
+@media (max-width: 640px) {
+  .alert-toast { left: 12px; right: 12px; width: auto; bottom: 66px; }
+}
+
+/* --- Alert setup dialog (confirmation shown when enabling an alert) --- */
+.alert-setup-filter { display: flex; flex-direction: column; gap: 3px; background: var(--bg-section, var(--bg-card-hover)); border: 1px solid var(--border-main); border-radius: 8px; padding: 10px 12px; margin: 4px 0; }
+.alert-setup-filter-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.alert-setup-filter-value { font-size: 14px; font-weight: 700; color: var(--accent); }
+.alert-setup-note { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; color: var(--text-muted); margin: 8px 0; }
+.alert-setup-checkbox { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-primary); cursor: pointer; margin-top: 6px; }
+.alert-setup-checkbox input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }

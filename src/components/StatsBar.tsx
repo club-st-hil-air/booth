@@ -9,7 +9,7 @@ interface StatsBarProps {
 
 export const StatsBar: React.FC<StatsBarProps> = ({ articles }) => {
   const { t } = useI18n();
-  const total = articles.length;
+  const lotsCount = articles.length;
   const allItems = articles.flatMap((a) => a.articles || []);
   const voilesCount = allItems.filter((i) => i.typeCode === '0').length;
   const sellettesCount = allItems.filter((i) => i.typeCode === '1').length;
@@ -18,7 +18,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({ articles }) => {
 
   return (
     <div className="stats-bar">
-      <div className="stats-item"><span className="stats-label">{t('totalLots')}</span><span className="stats-value">{total}</span></div>
+      <div className="stats-item"><span className="stats-label">{t('totalLotsCount')}</span><span className="stats-value">{lotsCount}</span></div>
       <div className="stats-item"><span className="stats-label">{t('glidersCount')}</span><span className="stats-value">{voilesCount}</span></div>
       <div className="stats-item"><span className="stats-label">{t('harnessesCount')}</span><span className="stats-value">{sellettesCount}</span></div>
       <div className="stats-item"><span className="stats-label">{t('reservesCount')}</span><span className="stats-value">{secoursCount}</span></div>

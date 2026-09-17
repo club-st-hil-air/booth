@@ -49,7 +49,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
       {/* Top: Lot badge + type on left, Price + actions on right */}
       <div className="card-top">
         <div className="card-top-left">
-          <div className="card-lot">{t('lotNum')} #{article.idLot}</div>
+          <div className="card-lot">{t('lotNum')} #{article.numeroCoupon}</div>
           <span className="card-type-badge">
             <span className="card-type-icon">{items.length > 1 ? '📦' : typeConfig.icon}</span>
             {items.length > 1 ? t('articlesCount', { count: items.length }) : (typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label)}

@@ -75,7 +75,7 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
   }
 
   const handleCopy = () => {
-    const text = `Lot #${article.idLot}: ${article.title || `${primary.marque} ${primary.modele}`} - ${article.prixVenteStr}`;
+    const text = `Lot #${article.numeroCoupon}: ${article.title || `${primary.marque} ${primary.modele}`} - ${article.prixVenteStr}`;
     navigator.clipboard?.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -97,7 +97,7 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ background: 'var(--accent)', color: '#fff', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-              {t('lotNum')} #{article.idLot}
+              {t('lotNum')} #{article.numeroCoupon}
             </span>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>

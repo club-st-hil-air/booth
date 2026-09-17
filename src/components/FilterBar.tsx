@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, X, SlidersHorizontal, LayoutGrid, List, RotateCcw } from 'lucide-react';
+import { Search, X, SlidersHorizontal, LayoutGrid, List, RotateCcw, Bell, BellRing } from 'lucide-react';
 import { FilterState, SortField, SortOrder, ViewMode } from '../types';
 import { getSortFieldsForType } from '../utils/articleUtils';
 import { useI18n } from '../i18n/I18nContext';
@@ -15,10 +15,12 @@ interface FilterBarProps {
   brands: string[];
   homologations: string[];
   onResetFilters: () => void;
+  alertActive: boolean;
+  onToggleAlert: () => void;
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
-  filters, onFilterChange, sortField, sortOrder, onSortChange, viewMode, onViewModeChange, brands, homologations, onResetFilters,
+  filters, onFilterChange, sortField, sortOrder, onSortChange, viewMode, onViewModeChange, brands, homologations, onResetFilters, alertActive, onToggleAlert,
 }) => {
   const { t } = useI18n();
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -81,6 +83,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <SlidersHorizontal size={16} />
           <span>{t('filtersBtn')}</span>
           {activeAdvancedCount > 0 && <span style={{ background: 'var(--accent)', color: '#fff', borderRadius: 10, padding: '1px 6px', fontSize: 10, fontWeight: 800 }}>{activeAdvancedCount}</span>}
+        </button>
+
+        <button
+          className={`header-btn ${alertActive ? 'header-btn--active' : ''}`}
+          onClick={onToggleAlert}
+          title={alertActive ? t('alertTooltipOff') : t('alertTooltipOn')}
+          aria-pressed={alertActive}
+        >
+          {alertActive ? <BellRing size={16} /> : <Bell size={16} />}
+          <span>{alertActive ? t('alertOff') : t('alertOn')}</span>
         </button>
       </div>
 

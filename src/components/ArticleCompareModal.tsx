@@ -49,7 +49,7 @@ export const ArticleCompareModal: React.FC<ArticleCompareModalProps> = ({
               return (
                 <div key={item.idLot} className="card" style={{ cursor: 'pointer' }} onClick={() => onSelectArticle(item)}>
                   <div className="card-top">
-                    <span className="card-lot">#{item.idLot}</span>
+                    <span className="card-lot">#{item.numeroCoupon}</span>
                     <button className="card-action-btn" onClick={(e) => { e.stopPropagation(); onRemoveFromCompare(item.idLot); }}>
                       <X size={16} color="var(--danger)" />
                     </button>

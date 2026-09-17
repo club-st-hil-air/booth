@@ -8,9 +8,11 @@ import { PTVCalculatorModal } from './components/PTVCalculatorModal';
 import { SettingsModal } from './components/SettingsModal';
 import { StatsBar } from './components/StatsBar';
 import { ArticleCompareModal } from './components/ArticleCompareModal';
-import { Article, ArticleRaw, FilterState, SortField, SortOrder, ViewMode } from './types';
+import { NewMatchesToast } from './components/NewMatchesToast';
+import { AlertSetupModal } from './components/AlertSetupModal';import { Article, ArticleRaw, FilterState, SortField, SortOrder, ViewMode } from './types';
 import { DEFAULT_S3_URL, PROD_S3_URL, TEST_S3_URL } from './data/mockData';
 import { filterArticles, groupRawIntoLots, getSortFieldsForType, getHomologationLevel, HOMOLOGATION_SORT_ORDER, getTailleSortKey, articleForType, GROUPABLE_SORT_FIELDS, getGroupValue, formatGroupLabel } from './utils/articleUtils';
+import { AlertSubscription, loadAlert, saveAlert, clearAlert, findNewMatches, summarizeFilter } from './utils/notifications';
 import { AlertTriangle, GitCompare, Trash2 } from 'lucide-react';
 import { useI18n } from './i18n/I18nContext';
 import { useTheme } from './theme/ThemeContext';
@@ -31,7 +33,7 @@ export function App() {
   const [apiUrl, setApiUrl] = useState<string>(() => {
     if (!isDev) return PROD_S3_URL;
     const saved = localStorage.getItem(STORAGE_API_KEY);
-    if (saved && saved !== PROD_S3_URL) return saved;
+    if (saved) return saved;
     return TEST_S3_URL;
   });
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<number>(60);
@@ -54,6 +56,11 @@ export function App() {
   const [ptvModalVisible, setPtvModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
   const [compareModalVisible, setCompareModalVisible] = useState(false);
+
+  // Alert subscription (client-side, tab-open): watch a filter and pop new matching lots.
+  const [alertSub, setAlertSub] = useState<AlertSubscription | null>(() => loadAlert());
+  const [newMatches, setNewMatches] = useState<Article[]>([]);
+  const [alertSetupVisible, setAlertSetupVisible] = useState<boolean>(false);
 
   const handleToggleFavorite = useCallback((idLot: string) => {
     setFavoriteIds((prev) => {
@@ -132,6 +139,62 @@ export function App() {
   }, [articles]);
 
   const handleSaveApiUrl = (url: string) => { setApiUrl(url); localStorage.setItem(STORAGE_API_KEY, url); };
+
+  // Lots currently matching a given filter subscription (ignores the favorites toggle for alerts).
+  const matchesForFilter = useCallback((list: Article[], f: FilterState): Article[] => {
+    return filterArticles(list, f.searchQuery, f.selectedStatus, f.selectedType, f.selectedBrand, f.selectedHomologation, f.selectedProfile, f.minPrice, f.maxPrice, f.ptvTarget, false, favoriteIds);
+  }, [favoriteIds]);
+
+  // Toggle: turning OFF is immediate; turning ON opens the confirmation dialog.
+  const handleToggleAlert = useCallback(() => {
+    if (alertSub) { clearAlert(); setAlertSub(null); setNewMatches([]); return; }
+    setAlertSetupVisible(true);
+  }, [alertSub]);
+
+  // Confirm from the setup dialog: snapshot the currently-matching lot ids as
+  // already-seen (so the alert only fires for lots appearing AFTER activation),
+  // and optionally request browser-notification permission.
+  const handleConfirmAlert = useCallback((wantsBrowserNotification: boolean) => {
+    const seenIds = matchesForFilter(articles, filters).map((l) => l.idLot);
+    const sub: AlertSubscription = { filters: { ...filters }, seenIds };
+    saveAlert(sub);
+    setAlertSub(sub);
+    setAlertSetupVisible(false);
+    if (wantsBrowserNotification && typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => { /* ignore */ });
+    }
+  }, [articles, filters, matchesForFilter]);
+
+  // On every data change, if an alert is active, diff current matches against seen ids.
+  useEffect(() => {
+    if (!alertSub || articles.length === 0) return;
+    const matching = matchesForFilter(articles, alertSub.filters);
+    const fresh = findNewMatches(matching, alertSub.seenIds);
+    if (fresh.length > 0) {
+      setNewMatches((prev) => {
+        const map = new Map(prev.map((l) => [l.idLot, l] as const));
+        fresh.forEach((l) => map.set(l.idLot, l));
+        return Array.from(map.values());
+      });
+      // Mark them seen so we don't re-notify on the next refresh.
+      const updated: AlertSubscription = { ...alertSub, seenIds: matching.map((l) => l.idLot) };
+      setAlertSub(updated);
+      saveAlert(updated);
+      // Best-effort native browser notification (only if the user already granted it).
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        try {
+          new Notification(t('alertNewMatchTitle', { count: fresh.length }), { body: fresh.map((l) => `#${l.numeroCoupon} ${l.title}`).join('\n') });
+        } catch { /* ignore */ }
+      }
+    }
+  }, [articles, alertSub, matchesForFilter, t]);
+
+  // "Consulter" — apply the watched filter and dismiss the toast.
+  const handleViewNewMatches = useCallback(() => {
+    if (alertSub) handleFilterChange(alertSub.filters);
+    setNewMatches([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alertSub]);
 
   const availableBrands = useMemo(() => {
     const set = new Set<string>();
@@ -234,6 +297,7 @@ export function App() {
         filters={filters} onFilterChange={handleFilterChange} sortField={sortField} sortOrder={sortOrder}
         onSortChange={handleSortChange} viewMode={viewMode} onViewModeChange={setViewMode}
         brands={availableBrands} homologations={availableHomologations} onResetFilters={handleResetFilters}
+        alertActive={Boolean(alertSub)} onToggleAlert={handleToggleAlert}
       />
 
       {isTestData && (
@@ -342,6 +406,23 @@ export function App() {
       <ArticleCompareModal visible={compareModalVisible} onClose={() => setCompareModalVisible(false)} articles={comparedArticlesList} onRemoveFromCompare={handleToggleCompare} onSelectArticle={handleSelectArticle} ptvTargetNum={ptvTargetNum} />
       <PTVCalculatorModal visible={ptvModalVisible} onClose={() => setPtvModalVisible(false)} currentPtv={filters.ptvTarget} onApplyPtv={(val) => handleFilterChange({ ...filters, ptvTarget: val })} />
       <SettingsModal visible={settingsModalVisible} onClose={() => setSettingsModalVisible(false)} apiUrl={apiUrl} onSaveApiUrl={handleSaveApiUrl} autoRefreshInterval={autoRefreshInterval} onSaveAutoRefresh={setAutoRefreshInterval} />
+
+      <AlertSetupModal
+        visible={alertSetupVisible}
+        filterSummary={summarizeFilter(filters, t)}
+        canRequestNotification={typeof Notification !== 'undefined' && Notification.permission !== 'denied'}
+        onConfirm={handleConfirmAlert}
+        onCancel={() => setAlertSetupVisible(false)}
+      />
+
+      {alertSub && (
+        <NewMatchesToast
+          matches={newMatches}
+          filterSummary={summarizeFilter(alertSub.filters, t)}
+          onView={handleViewNewMatches}
+          onDismiss={() => setNewMatches([])}
+        />
+      )}
     </div>
   );
 }
