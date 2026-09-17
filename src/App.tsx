@@ -48,7 +48,7 @@ export function App() {
     selectedHomologation: 'ALL', selectedProfile: 'ALL', minPrice: '', maxPrice: '', ptvTarget: '', onlyFavorites: false,
   });
 
-  const [sortField, setSortField] = useState<SortField>('idLot');
+  const [sortField, setSortField] = useState<SortField>('numeroCoupon');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
@@ -264,7 +264,7 @@ export function App() {
 
   const handleResetFilters = useCallback(() => {
     setFilters({ searchQuery: '', selectedStatus: 'ALL', selectedType: 'ALL', selectedBrand: 'ALL', selectedHomologation: 'ALL', selectedProfile: 'ALL', minPrice: '', maxPrice: '', ptvTarget: '', onlyFavorites: false });
-    setSortField('idLot');
+    setSortField('numeroCoupon');
     setSortOrder('asc');
   }, []);
 
@@ -273,7 +273,7 @@ export function App() {
       newFilters = { ...newFilters, selectedType: '0' };
     }
     if (newFilters.selectedType !== filters.selectedType && !getSortFieldsForType(newFilters.selectedType).includes(sortField)) {
-      setSortField('idLot');
+      setSortField('numeroCoupon');
       setSortOrder('asc');
     }
     setFilters(newFilters);
