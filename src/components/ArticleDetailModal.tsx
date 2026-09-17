@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Heart, Gauge, Calendar, Shield, Tag, Maximize2, FileText, Copy, Check, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Article } from '../types';
 import { TYPE_MAP } from '../utils/articleUtils';
+import { ColorPalette } from './ColorPalette';
 import { useI18n } from '../i18n/I18nContext';
 import { Language } from '../i18n/translations';
 
@@ -172,7 +173,7 @@ export const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                     {(item.PTVMin > 0 || item.PTVMax > 0) && item !== glider && <div className="detail-row"><Gauge size={14} className="detail-row-icon" /><span className="detail-row-label">{t('ptvLabel')}</span><span className="detail-row-value">{item.PTVMin || '?'} - {item.PTVMax || '?'} kg</span></div>}
                     {item.taille && <div className="detail-row"><Maximize2 size={14} className="detail-row-icon" /><span className="detail-row-label">{t('sizeLabel')}</span><span className="detail-row-value">{item.taille}</span></div>}
                     {item.annee && <div className="detail-row"><Calendar size={14} className="detail-row-icon" /><span className="detail-row-label">{t('yearLabel')}</span><span className="detail-row-value">{item.annee}</span></div>}
-                    {item.couleurVoile && <div className="detail-row"><Tag size={14} className="detail-row-icon" /><span className="detail-row-label">{t('colorLabel')}</span><span className="detail-row-value">{item.couleurVoile}</span></div>}
+                    {item.couleurVoile && <div className="detail-row"><Tag size={14} className="detail-row-icon" /><span className="detail-row-label">{t('colorLabel')}</span><span className="detail-row-value">{item.couleurVoile}{item.typeCode === '0' && <ColorPalette couleurVoile={item.couleurVoile} size={14} />}</span></div>}
                   </div>
                   {item.commentaire && (
                     <div className="card-comment"><FileText size={12} style={{ flexShrink: 0, marginTop: 2 }} /><span className="card-comment-text">{item.commentaire}</span></div>

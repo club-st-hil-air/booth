@@ -352,3 +352,7 @@ input, select { font: inherit; }
 .new-lots-banner-text { font-size: 13px; font-weight: 700; color: var(--accent); }
 .new-lots-banner-btn { font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 8px; background: var(--accent); color: #fff; transition: filter 0.15s; }
 .new-lots-banner-btn:hover { filter: brightness(1.08); }
+
+/* --- Colour palette swatches (glider colours) --- */
+.color-palette { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; vertical-align: middle; }
+.color-swatch { display: inline-block; border-radius: 3px; border: 1px solid color-mix(in srgb, var(--text-primary) 25%, transparent); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.06); flex-shrink: 0; }
