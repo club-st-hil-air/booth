@@ -1,7 +1,8 @@
 import React from 'react';
 import { X, GitCompare, Gauge, Calendar, Shield, Tag, Maximize2 } from 'lucide-react';
 import { Article } from '../types';
-import { TYPE_MAP } from '../utils/articleUtils';
+import { TYPE_MAP, getHomologationLevel, HOMOLOGATION_COLORS } from '../utils/articleUtils';
+import { ColorPalette } from './ColorPalette';
 import { useI18n } from '../i18n/I18nContext';
 
 interface ArticleCompareModalProps {
@@ -36,6 +37,7 @@ export const ArticleCompareModal: React.FC<ArticleCompareModalProps> = ({
               const primary = item.primaryArticle || subItems[0] || { typeCode: '0', typeLabel: 'Article', typeIcon: '📦', marque: '', modele: '', homologation: '', PTVMin: 0, PTVMax: 0, taille: '', annee: '', couleurVoile: '', commentaire: '' };
               const typeConfig = TYPE_MAP[primary.typeCode] || { label: 'Article', translationKey: '', icon: '📦' };
               const glider = subItems.find((a) => a.typeCode === '0' && (a.PTVMin > 0 || a.PTVMax > 0));
+              const colorGlider = subItems.find((a) => a.typeCode === '0' && a.couleurVoile !== '');
 
               let ptvGauge: { pct: number; ptvZone: string; zoneColor: string } | null = null;
               if (ptvTargetNum !== null && glider && glider.PTVMin > 0 && glider.PTVMax > glider.PTVMin) {
@@ -56,8 +58,19 @@ export const ArticleCompareModal: React.FC<ArticleCompareModalProps> = ({
                   </div>
                   <div className="card-title-section">
                     <span className="card-type-badge"><span>{typeConfig.icon}</span> {typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label}</span>
-                    <span className="card-brand">{primary.marque}</span>
-                    <span className="card-model" style={{ fontSize: 15 }}>{primary.modele || item.title}</span>
+                    <span className="card-model" style={{ fontSize: 15 }}>
+                      {subItems.some((it) => it.marque || it.modele)
+                        ? subItems
+                            .filter((it) => (it.marque || it.modele))
+                            .map((it, i) => (
+                              <span key={i} className="card-model-item">
+                                {i > 0 && <span className="card-model-sep"> + </span>}
+                                {it.marque && <span className="card-model-brand">{it.marque} </span>}
+                                <span className="card-model-name">{it.modele}</span>
+                              </span>
+                            ))
+                        : (primary.modele || item.title || t('noModel'))}
+                    </span>
                   </div>
                   <span className="card-price" style={{ fontSize: 18 }}>{item.prixVenteStr}</span>
                   <div className="card-specs">
@@ -66,8 +79,17 @@ export const ArticleCompareModal: React.FC<ArticleCompareModalProps> = ({
                     )}
                     {primary.taille && <span className="card-spec"><Maximize2 size={12} /> {primary.taille}</span>}
                     {primary.annee && <span className="card-spec"><Calendar size={12} /> {primary.annee}</span>}
-                    {primary.homologation && <span className="card-spec"><Shield size={12} /> {primary.homologation}</span>}
-                    {primary.couleurVoile && <span className="card-spec"><Tag size={12} /> {primary.couleurVoile}</span>}
+                    {primary.homologation && (() => {
+                      const level = getHomologationLevel(primary.homologation);
+                      return (
+                        <span className={`card-spec ${level ? `card-spec--homol-${level}` : ''}`} title={t('homologationLabel')}>
+                          <Shield size={12} color={HOMOLOGATION_COLORS[level]} /> {primary.homologation}
+                        </span>
+                      );
+                    })()}
+                    {colorGlider && (
+                      <span className="card-spec"><Tag size={12} /> {colorGlider.couleurVoile}<ColorPalette couleurVoile={colorGlider.couleurVoile} size={12} /></span>
+                    )}
                   </div>
                   {ptvGauge && (
                     <div className="card-ptv-gauge">

@@ -30,14 +30,18 @@ export function decodeEntities(input: string): string {
  */
 const COLOR_NAME_TO_HEX: Record<string, string> = {
   // French
-  rouge: '#e53935', orange: '#fb8c00', jaune: '#fdd835', vert: '#43a047', verte: '#43a047',
+  rouge: '#e53935', orange: '#fb8c00', jaune: '#fdd835', jaunes: '#fdd835', vert: '#43a047', verte: '#43a047',
   bleu: '#1e88e5', bleue: '#1e88e5', violet: '#8e24aa', violette: '#8e24aa', rose: '#ec407a',
   noir: '#212121', noire: '#212121', blanc: '#fafafa', blanche: '#fafafa', gris: '#9e9e9e', grise: '#9e9e9e',
   marron: '#795548', turquoise: '#26c6da', lime: '#c0ca33', corail: '#ff7043', argent: '#bdbdbd', or: '#ffd700',
+  olive: '#827717', bordeaux: '#7b1e2b', bordeau: '#7b1e2b', cerise: '#d32f2f', petrole: '#00838f', flammes: '#e53935',
   // English
   red: '#e53935', green: '#43a047', blue: '#1e88e5', yellow: '#fdd835', purple: '#8e24aa',
   pink: '#ec407a', black: '#212121', white: '#fafafa', grey: '#9e9e9e', gray: '#9e9e9e',
   brown: '#795548', coral: '#ff7043', silver: '#bdbdbd', gold: '#ffd700', lavender: '#b39ddb',
+  emerald: '#00897b', cherry: '#d32f2f', spring: '#8bc34a', glacier: '#e1f5fe',
+  // Common typos / short forms
+  withe: '#fafafa', bleur: '#1e88e5', blu: '#1e88e5',
   // Commercial colourway names that map unambiguously
   ocean: '#0277bd', azur: '#039be5', azzurro: '#039be5', azura: '#039be5', petrol: '#00838f',
   sunset: '#ff7043', fire: '#e53935', flame: '#e53935', citrus: '#c0ca33', acid: '#c0ca33',
@@ -157,7 +161,8 @@ export function getSortFieldsForType(typeCode: string): SortField[] {
 
 /** Pick the article of the selected type within a lot (mixed lots promote the glider as primary). */
 export function articleForType(lot: Lot, selectedType: string): ArticleItem {
-  if (selectedType !== 'ALL') {
+  // 'ALL' and the pseudo-category 'LOTS' are not real typeCodes → use the lot's primary article.
+  if (selectedType !== 'ALL' && selectedType !== 'LOTS') {
     const match = lot.articles.find((a) => a.typeCode === selectedType);
     if (match) return match;
   }
@@ -214,11 +219,15 @@ export function groupRawIntoLots(rawArticles: ArticleRaw[]): Lot[] {
       bg: 'rgba(139, 92, 246, 0.15)',
     };
 
+    const rawMarque = decodeEntities((raw.marque || '').trim());
+    // '_AUTRE' (a.k.a. '_AUTRE / Other') is a placeholder brand meaning "unknown/other" — don't display it.
+    const marque = /^_?autre(\s*\/\s*other)?$/i.test(rawMarque) ? '' : rawMarque;
+
     const item: ArticleItem = {
       typeCode: raw.type || '3',
       typeLabel: typeInfo.label,
       typeIcon: typeInfo.icon,
-      marque: decodeEntities((raw.marque || '').trim()),
+      marque,
       modele: decodeEntities((raw.modele || '').trim()),
       homologation: decodeEntities((raw.homologation || '').trim()),
       PTVMin: parseFloat(raw.PTVMin || '0') || 0,
@@ -254,6 +263,18 @@ export function groupRawIntoLots(rawArticles: ArticleRaw[]): Lot[] {
       // Rebuild summary title
       lot.title = lot.articles.map((a) => `${a.marque} ${a.modele}`.trim()).filter(Boolean).join(' + ');
     }
+  });
+
+  // Order each lot's articles: glider (0) -> harness (1) -> reserve (2) -> accessory/other (3+).
+  // Stable sort preserves the original order within a same type.
+  const typeOrder = (code: string): number => {
+    const idx = ['0', '1', '2', '3'].indexOf(code);
+    return idx === -1 ? 99 : idx;
+  };
+  lotMap.forEach((lot) => {
+    lot.articles.sort((a, b) => typeOrder(a.typeCode) - typeOrder(b.typeCode));
+    // Rebuild the title from the reordered articles so the summary leads with the glider.
+    lot.title = lot.articles.map((a) => `${a.marque} ${a.modele}`.trim()).filter(Boolean).join(' + ');
   });
 
   return Array.from(lotMap.values());
@@ -298,9 +319,20 @@ export function filterArticles(
       }
     }
 
-    // Category Type filter (matches if ANY article in the lot is of that type)
-    if (typeCode !== 'ALL' && !lot.articles.some((a) => a.typeCode === typeCode)) {
-      return false;
+    // Category Type filter.
+    // '0'/'1'/'2'/'3': only "pure" lots — every article is of that single type
+    //   (a lot with a glider + harness + bag is not a "harness" lot nor an "accessory" lot).
+    // 'LOTS': only composed lots — articles span at least two different types.
+    if (typeCode !== 'ALL') {
+      let matches: boolean;
+      if (typeCode === 'LOTS') {
+        matches = new Set(lot.articles.map((a) => a.typeCode)).size >= 2;
+      } else {
+        matches = lot.articles.every((a) => a.typeCode === typeCode);
+      }
+      if (!matches) {
+        return false;
+      }
     }
 
     // Brand filter (matches if ANY article in the lot is of that brand)

@@ -23,6 +23,7 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({ couleurVoile, size =
           className="color-swatch"
           style={{ background: c.hex, width: size, height: size }}
           title={c.name}
+          aria-hidden="true"
         />
       ))}
     </span>

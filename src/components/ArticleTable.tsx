@@ -80,7 +80,7 @@ const ArticleTableComponent: React.FC<ArticleTableProps> = ({
                 <tr key={article.idLot} onClick={() => onSelectArticle(article)}>
                   <td><strong style={{ color: 'var(--accent)' }}>#{article.numeroCoupon}</strong></td>
                   <td><span>{typeConfig.icon} {typeConfig.translationKey ? t(typeConfig.translationKey as any) : typeConfig.label}</span></td>
-                  <td>{primary.marque} {primary.modele}</td>
+                  <td>{`${primary.marque} ${primary.modele}`.trim()}</td>
                   <td><strong style={{ color: 'var(--success)' }}>{article.prixVenteStr}</strong></td>
                   <td>{primary.PTVMax > 0 ? `${primary.PTVMin}-${primary.PTVMax} kg` : '-'}</td>
                   <td>{primary.homologation ? <span style={{ color: HOMOLOGATION_COLORS[getHomologationLevel(primary.homologation)], fontWeight: 600 }}>{primary.homologation}</span> : '-'}</td>
