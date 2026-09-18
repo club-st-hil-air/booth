@@ -29,6 +29,8 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
 
   let isPtvMatch = false;
   const gliderItem = items.find((a) => a.typeCode === '0' && (a.PTVMin > 0 || a.PTVMax > 0));
+  // Colour source: any glider in the lot that has a colour (composed lots still show swatches).
+  const colorGlider = items.find((a) => a.typeCode === '0' && a.couleurVoile !== '');
   if (ptvTargetNum !== null && gliderItem) {
     const min = gliderItem.PTVMin > 0 ? gliderItem.PTVMin : 0;
     const max = gliderItem.PTVMax > 0 ? gliderItem.PTVMax : 999;
@@ -70,10 +72,21 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
         </div>
       </div>
 
-      {/* Brand & Model */}
+      {/* Brand & Model — single line, brand in accent colour */}
       <div className="card-title-section">
-        <span className="card-brand">{primary.marque || t('noBrand')}</span>
-        <span className="card-model">{article.title || t('noModel')}</span>
+        <span className="card-model">
+          {items.some((it) => it.marque || it.modele)
+            ? items
+                .filter((it) => (it.marque || it.modele))
+                .map((it, i) => (
+                  <span key={i} className="card-model-item">
+                    {i > 0 && <span className="card-model-sep"> + </span>}
+                    {it.marque && <span className="card-model-brand">{it.marque} </span>}
+                    <span className="card-model-name">{it.modele}</span>
+                  </span>
+                ))
+            : (article.title || t('noModel'))}
+        </span>
       </div>
 
       {/* Multi-article breakdown */}
@@ -82,7 +95,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
           {items.map((item, idx) => (
             <div key={idx} className="card-multi-chip">
               <span className="card-multi-icon">{item.typeIcon}</span>
-              <span>{TYPE_MAP[item.typeCode]?.translationKey ? t(TYPE_MAP[item.typeCode].translationKey as any) : item.typeLabel} {item.marque} {item.modele}</span>
+              <span>{TYPE_MAP[item.typeCode]?.translationKey ? t(TYPE_MAP[item.typeCode].translationKey as any) : item.typeLabel}</span>
             </div>
           ))}
         </div>
@@ -117,15 +130,15 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
         {primary.homologation !== '' && (() => {
           const level = getHomologationLevel(primary.homologation);
           return (
-            <span className={`card-spec ${level ? `card-spec--homol-${level}` : ''}`}>
+            <span className={`card-spec ${level ? `card-spec--homol-${level}` : ''}`} title={t('homologationLabel')}>
               <Shield size={13} color={HOMOLOGATION_COLORS[level]} />{primary.homologation}
             </span>
           );
         })()}
-        {primary.couleurVoile !== '' && (
+        {colorGlider && (
           <span className="card-spec">
-            <Tag size={13} color="var(--text-muted)" />{primary.couleurVoile}
-            {primary.typeCode === '0' && <ColorPalette couleurVoile={primary.couleurVoile} size={12} />}
+            <Tag size={13} color="var(--text-muted)" />{colorGlider.couleurVoile}
+            <ColorPalette couleurVoile={colorGlider.couleurVoile} size={12} />
           </span>
         )}
       </div>

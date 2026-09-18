@@ -86,7 +86,7 @@ export function App() {
 
     const fetchJson = async (url: string) => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
       try {
         const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
         clearTimeout(timeoutId);

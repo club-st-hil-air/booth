@@ -27,6 +27,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
   const categories = [
     { code: 'ALL', label: t('allCategories'), icon: '✨' },
+    { code: 'LOTS', label: t('lotsCategory'), icon: '📦' },
     { code: '0', label: t('gliders'), icon: '🪂' },
     { code: '1', label: t('harnesses'), icon: '💺' },
     { code: '2', label: t('reserves'), icon: '🆘' },
