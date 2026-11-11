@@ -56,6 +56,7 @@ export function App() {
   const [ptvModalVisible, setPtvModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
   const [compareModalVisible, setCompareModalVisible] = useState(false);
+  const [isStandClosed, setIsStandClosed] = useState<boolean>(false);
 
   // Alert subscription (client-side, tab-open): watch a filter and pop new matching lots.
   const [alertSub, setAlertSub] = useState<AlertSubscription | null>(() => loadAlert());
@@ -101,26 +102,24 @@ export function App() {
     try {
       const data: ArticleRaw[] = await fetchJson(apiUrl);
       setArticles(groupRawIntoLots(data));
+      setIsStandClosed(false);
       setLastUpdated(new Date());
-    } catch (primaryErr: any) {
-      if (apiUrl !== TEST_S3_URL) {
-        try {
-          const data: ArticleRaw[] = await fetchJson(TEST_S3_URL);
-          setArticles(groupRawIntoLots(data));
-          setIsTestData(true);
-          setLastUpdated(new Date());
-        } catch {
-          setArticles([]);
-          setErrorMsg(primaryErr.name === 'AbortError' ? t('errorTimeout') : primaryErr.message || t('errorNetwork'));
-          setLastUpdated(new Date());
-        }
-      } else {
+    } catch {
+      // Primary source unavailable: fall back to the test file if it exists.
+      try {
+        if (apiUrl === TEST_S3_URL) throw new Error('no fallback');
+        const data: ArticleRaw[] = await fetchJson(TEST_S3_URL);
+        setArticles(groupRawIntoLots(data));
+        setIsTestData(true);
+        setIsStandClosed(false);
+      } catch {
+        // Neither prod nor test file available: the event is over.
         setArticles([]);
-        setErrorMsg(primaryErr.name === 'AbortError' ? t('errorTimeout') : primaryErr.message || t('errorNetwork'));
-        setLastUpdated(new Date());
+        setIsStandClosed(true);
       }
+      setLastUpdated(new Date());
     } finally { setIsLoading(false); }
-  }, [apiUrl, t]);
+  }, [apiUrl]);
 
   useEffect(() => { loadArticles(); }, [loadArticles]);
   useEffect(() => {
@@ -332,8 +331,13 @@ export function App() {
       )}
 
       <main className="main-scroll">
-        {isLoading && articles.length === 0 ? (
+        {isLoading && articles.length === 0 && !isStandClosed ? (
           <div className="loading"><div className="spinner" /><span className="loading-text">{t('refreshing')}</span></div>
+        ) : isStandClosed ? (
+          <div className="empty-state">
+            <span className="empty-emoji">🪂</span>
+            <span className="empty-title">{t('eventClosed')}</span>
+          </div>
         ) : filteredArticles.length === 0 ? (
           <div className="empty-state">
             <span className="empty-emoji">🔍</span>

@@ -122,6 +122,7 @@ export const TRANSLATIONS = {
     emptyTitle: "Aucun lot ne correspond à vos critères",
     emptySub: "Essayez de modifier votre recherche ou de réinitialiser vos filtres.",
     offlineModeBanner: "Données de démonstration — le fichier de production n'est pas encore disponible.",
+    eventClosed: "La Coupe Icare est terminée, le stand est donc fermé. Rendez-vous à la prochaine coupe !",
     // Filter group labels, placeholders & fallbacks
     filterGroupType: "Type",
     filterGroupLevel: "Niveau",
@@ -270,6 +271,7 @@ export const TRANSLATIONS = {
     emptyTitle: "No items match your criteria",
     emptySub: "Try modifying your search or resetting your filters.",
     offlineModeBanner: "Demo data — production file is not yet available.",
+    eventClosed: "The Icare Cup is over, the stand is therefore closed. See you at the next cup!",
     // Filter group labels, placeholders & fallbacks
     filterGroupType: "Type",
     filterGroupLevel: "Level",
@@ -418,6 +420,7 @@ export const TRANSLATIONS = {
     emptyTitle: "Ningún lote coincide con tus criterios",
     emptySub: "Intenta modificar tu búsqueda o restablecer los filtros.",
     offlineModeBanner: "Datos de demostración — el archivo de producción aún no está disponible.",
+    eventClosed: "La Coupe Icare ha terminado, por lo que el stand está cerrado. ¡Hasta la próxima edición!",
     // Filter group labels, placeholders & fallbacks
     filterGroupType: "Tipo",
     filterGroupLevel: "Nivel",
@@ -566,6 +569,7 @@ export const TRANSLATIONS = {
     emptyTitle: "Keine Artikel entsprechen Ihren Kriterien",
     emptySub: "Versuchen Sie Ihre Suche zu ändern oder die Filter zurückzusetzen.",
     offlineModeBanner: "Demodaten — Produktionsdatei ist noch nicht verfügbar.",
+    eventClosed: "Die Icare Cup ist vorbei, der Stand ist daher geschlossen. Wir sehen uns beim nächsten Cup!",
     // Filter group labels, placeholders & fallbacks
     filterGroupType: "Typ",
     filterGroupLevel: "Stufe",
